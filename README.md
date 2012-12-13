@@ -1,12 +1,19 @@
 # SmacBans: Block
+[![Build Status](http://vs.gugyclan.eu:8000/job/SmacBans-Block/badge/icon)](http://vs.gugyclan.eu:8000/job/SmacBans-Block/)
 
 SmacBans: Block is a plugin designed to keep cheaters who have been detected by SMAC away from your server.  
 [Smacbans.com](http://smacbans.com) provides a global banlist where caught cheaters are stored, this plugin will check every player against this list.  
-If they were found they imediately will be thrown out of your server
+If they were found in our list they immediately will be thrown out of your server
+
+
+## Warning
+This repository is used for developement purposes.  
+The code here is often not tested extensively enough to use if for productively run servers.  
+If you're not a developer please visit our website for a stable release.  
 
 
 ## Supported Games
-SmacBans: Block will be compatible with any game SMAC and the depenciesa are available for.  
+SmacBans: Block will be compatible with any game SMAC and the depencies are available for.  
 These include the following
 
     Counter-Strike: Source
@@ -42,3 +49,8 @@ And many others.
 * The plugins needs the [Socket](http://forums.alliedmods.net/showthread.php?t=67640), or [Curl](http://forums.alliedmods.net/showthread.php?t=152216)  extension to work, we recommend socket.  
 * The plugin will automatically create a configfile in `..cfg/sourcemod/smacbans-block.cfg`  
 * The plugin has support for the automatic [Updater](http://forums.alliedmods.net/showthread.php?t=169095), we recommend you use it
+
+
+## Compile
+There is only one thing you should note when compiling.  
+The includefile is included locally, thus it must lie in the same folder where the sourcecode, just like in this repo.  
