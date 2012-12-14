@@ -126,7 +126,6 @@ stock bool:IsClientValid(id)
  *
  * @param auth			AuthID.
  * @return				Clientindex or -1 on failure.
- * @error				-1
 */
 // Used to find a matching client to an auth
 stock GetClientFromSteamId(const String:auth[])
@@ -154,6 +153,7 @@ stock GetClientFromSteamId(const String:auth[])
 /**
  * Formats an long to an dotted IP-string
  *
+ * @param long			Long ip.
  * @param str			String to store the ip into.
  * @param maxlen		Length of buffer.
  * @noreturn
