@@ -34,10 +34,10 @@ You can see a list of servers running this plugin [here](http://www.game-monitor
 1. Get at least **one** of the needed exensions: [Socket](http://forums.alliedmods.net/showthread.php?t=67640), [Curl](http://forums.alliedmods.net/showthread.php?t=152216)  
 2. Get the optional [Plugin updater](http://forums.alliedmods.net/showthread.php?t=169095), we highly recommend you to use it  
 3. Put `smacbans-block.smx` in your `../addons/sourcemod/plugins` directory  
-4. If you update please delete the `smacbans-block.cfg` from `../cfg/sourcemod/`  
+4. Put `smacbans-block.phrases.txt` in your `../addons/sourcemod/translations` directory  
 5. Add the `smacbans-block.cfg` in your `../cfg/sourcemod` folder or load the plugin, it will automatically create it  
 6. Load the plugin  
-8. Edit the config to your purposes
+7. Edit the config to your purposes
 
 
 ## Upgrade
@@ -48,7 +48,7 @@ You can see a list of servers running this plugin [here](http://www.game-monitor
 
 ## Notes
 * Mesages will be show to Admins with the genericflag or the commandoverride `smacbans_admin`  
-* Clients will be rechecked on a lateloadsituation (pulginreload)  
+* Clients will be rechecked on a lateloadsituation (pluginreload)  
 * The plugins needs the [Socket](http://forums.alliedmods.net/showthread.php?t=67640), or [Curl](http://forums.alliedmods.net/showthread.php?t=152216)  extension to work, we recommend socket   
 * The plugin will automatically create a `smacbans-block.cfg` in `..cfg/sourcemod/`  
 * The plugin has support for the automatic [Updater](http://forums.alliedmods.net/showthread.php?t=169095), we highly recommend you to use it
