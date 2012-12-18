@@ -1,5 +1,4 @@
 # SmacBans: Block
-[![Build Status](http://vs.gugyclan.eu:8000/job/SmacBans-Block/badge/icon)](http://vs.gugyclan.eu:8000/job/SmacBans-Block/)
 
 SmacBans: Block is a plugin designed to keep cheaters who have been detected by SMAC away from your server.  
 [Smacbans.com](http://smacbans.com) provides a global banlist where caught cheaters are stored, this plugin will check every player against this list.  
@@ -12,7 +11,12 @@ We only provide a community driven global banlist and the tools to use it.
 ## Warning
 This repository is used for developement purposes.  
 The code here is often not tested extensively enough to use if for productively run servers.  
-If you're not a developer or do not intend to help us by testing unstable versions you should visit our website for a stable release.  
+If you're not a developer or do not intend to help us by testing unstable versions you should visit [our website](http://smacbans.com) for a stable release.  
+
+### Downloading an developement build
+Every time something is commited into this reposity the plugin will be build here [here](http://vs.gugyclan.eu:8000/job/SmacBans-Block/).  
+The compiled build is compiled from the sourcecode you see here, therefore the warning above also applies to these builds.  
+**Use them at your own risk.**
 
 
 ## Supported Games
@@ -54,6 +58,6 @@ You can see a list of servers running this plugin [here](http://www.game-monitor
 * The plugin has support for the automatic [Updater](http://forums.alliedmods.net/showthread.php?t=169095), we highly recommend you to use it
 
 
-## Compile
+## Compiling
 There is only one thing you should note when compiling.  
 The includefile is included locally, hence it must lie in the same folder as the sourcecode, just like in this repo.  
