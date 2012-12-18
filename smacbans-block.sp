@@ -27,15 +27,15 @@
 // Api
 #define APIURL "api.smacbans.com"
 #define APIPORT 80
-#define USERAGENT "SmacBans_Block"
+#define USERAGENT "SmacBans_Blockx"
 
 
 // Debug message switch
-#define DEBUG false
+#define DEBUG true
 
 
 // Internal testing doesn't need updatersupport
-#define UPDATER true
+#define UPDATER false
 
 
 
@@ -50,6 +50,12 @@
 #define EXT_SOCKET 1
 new g_iPreferredExtension = EXT_SOCKET;
 new Handle:g_hPreferredExtension;
+
+
+
+// IPC
+new Handle:g_hOnReceiveForward;
+
 
 
 
@@ -170,7 +176,7 @@ new Handle:g_hTrie;
 
 #define CACHE_MAX_SIZE   15000
 #define CACHE_EXPIRY     24
-#define CACHE_NOT_STORED 0
+#define CACHE_UNKNOWN    0
 #define CACHE_NOT_BANNED 1
 #define CACHE_IS_BANNED  2
 
@@ -208,6 +214,8 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	MarkNativeAsOptional("curl_easy_perform_thread");
 	MarkNativeAsOptional("curl_easy_strerror");
 	
+	
+	RegPluginLibrary("smacbans-block");
 	
 	g_bLateLoaded = late;
 	return APLRes_Success;
@@ -286,7 +294,7 @@ public OnPluginStart()
 	
 	
 	#if DEBUG == true
-	// Check the requirements, if you prefer socket we have an overhead of ~0.002 milliseconds because the check is done twice
+	// Check the requirements, if you prefer curl we have an overhead of ~0.002 milliseconds because the check is done twice
 	if(SOCKET_AVAILABLE() && !(g_iPreferredExtension == EXT_CURL && CURL_AVAILABLE()) )
 	{
 		SmacbansDebug(DEBUG, "Using Socket");
@@ -321,10 +329,16 @@ public OnPluginStart()
 	
 	// Format the dynamic UserAgent
 	decl String:sHostIp[16];
-	LongToIp(g_iHostIp, sHostIp, sizeof(sHostIp));
+	SmacbansLongToIp(g_iHostIp, sHostIp, sizeof(sHostIp));
 	Format(g_sDynamicUserAgent, sizeof(g_sDynamicUserAgent), "[%s] (%s) <%s:%d>", USERAGENT, PLUGIN_VERSION, sHostIp, g_iPort);
 	
 	SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
+	
+	
+	
+	// IPC
+	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
+	
 	
 	
 	// Lateload
@@ -453,7 +467,7 @@ public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue
 		
 		// Format the dynamic UserAgent
 		decl String:sHostIp[16];
-		LongToIp(g_iHostIp, sHostIp, sizeof(sHostIp));
+		SmacbansLongToIp(g_iHostIp, sHostIp, sizeof(sHostIp));
 		Format(g_sDynamicUserAgent, sizeof(g_sDynamicUserAgent), "[%s] (%s) <%s:%d>", USERAGENT, PLUGIN_VERSION, sHostIp, g_iPort);
 		
 		SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
@@ -484,7 +498,7 @@ public OnClientAuthorized(client, const String:auth[])
 		
 		
 		// Player was not checked before, or check failed
-		if(status == CACHE_NOT_STORED)
+		if(status == CACHE_UNKNOWN)
 		{
 			LateCheckAllClients();
 		}
@@ -571,7 +585,7 @@ public Action:Timer_WelcomeMessage(Handle:timer, any:userid)
 {
 	new client = GetClientOfUserId(userid);
 	
-	if(IsClientValid(client))
+	if(SmacbansIsClientValid(client))
 	{
 		PrintToChat(client, "\x04[SMACBANS]\x03 %t", "Smacbans_Welcome", COMMUNITYURL);
 	}
@@ -604,7 +618,7 @@ LateCheckAllClients()
 	
 	for(new i; i <= MaxClients; i++)
 	{
-		if(!g_bWasChecked[i] && !g_bIsBeingChecked[i] && IsClientUsableAuth(i) && !IsFakeClient(i))
+		if(!g_bWasChecked[i] && !g_bIsBeingChecked[i] && SmacbansIsClientUsableAuth(i) && !IsFakeClient(i))
 		{
 			GetClientAuthString(i, auth, sizeof(auth));
 			
@@ -623,8 +637,13 @@ LateCheckAllClients()
 	}
 	
 	
-	// Only if there where people we need to check, we could also use a countervar, a bool or something like that
-	if(strlen(g_sMultiRequestString) > 0)
+	#if DEBUG == true
+	StrCat(g_sMultiRequestString, sizeof(g_sMultiRequestString), "STEAM_0:0:12345/");
+	#endif
+	
+	
+	// Only if there where people we need to check
+	if(g_sMultiRequestString[0] != '\0')
 	{
 		SmacbansDebug(DEBUG, "Multi: %s", g_sMultiRequestString);
 		CheckLateClients();
@@ -713,7 +732,6 @@ CheckLateClients()
 		// Requirements are not met anymore (shouldn't happen normally)
 		SetFailState(EXTENSIONS_MISSING_ERROR);
 	}
-	
 }
 
 
@@ -1002,11 +1020,11 @@ ProcessResponse(String:data[])
 		if(strlen(Split[i]) > 0 && MatchRegex(g_hRegex, Split[i]) == 1)
 		{
 			// Search the client which matches the steamid
-			client = GetClientFromSteamId(Split[i]);
+			client = SmacbansGetClientFromSteamId(Split[i]);
 			
 			
 			// If client is still valid (has not left)
-			if(client != -1 && IsClientUsableAuth(client))
+			if(client != -1 && SmacbansIsClientUsableAuth(client))
 			{
 				// Set the isbeingchecked flag to false
 				g_bIsBeingChecked[client] = false;
@@ -1084,8 +1102,8 @@ ProcessResponse(String:data[])
 				else
 				{
 					// Save him in the cache
-					SetTrieValue(g_hTrie, Split[i], CACHE_NOT_STORED, true);
-					SmacbansDebug(DEBUG, "Set CACHE_NOT_STORED on client %N", client);
+					SetTrieValue(g_hTrie, Split[i], CACHE_UNKNOWN, true);
+					SmacbansDebug(DEBUG, "Set CACHE_UNKNOWN on client %N", client);
 					
 					
 					// Remove the checked flag, so the client gets rechecked next time
@@ -1102,6 +1120,18 @@ ProcessResponse(String:data[])
 						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_NoMatch", client);
 					}
 				}
+				
+				
+				
+				// IPC
+				new status;
+				GetTrieValue(g_hTrie, Split[i], status);
+				
+				Call_StartForward(g_hOnReceiveForward);
+				Call_PushString(Split[i]);
+				Call_PushCell(status);
+				Call_PushString((strlen(Split3[i]) > 0 ? Split3[i] : "N/A"));
+				Call_Finish();
 			}
 			// Client has left premature (should only happen with connectionspam or something like that), we do caching and logging only then
 			else
@@ -1133,9 +1163,21 @@ ProcessResponse(String:data[])
 				else
 				{
 					// Save the identity in the cache
-					SetTrieValue(g_hTrie, Split[i], CACHE_NOT_STORED, true);
-					SmacbansDebug(DEBUG, "Set CACHE_NOT_STORED on identity %s", Split[i]);
+					SetTrieValue(g_hTrie, Split[i], CACHE_UNKNOWN, true);
+					SmacbansDebug(DEBUG, "Set CACHE_UNKNOWN on identity %s", Split[i]);
 				}
+				
+				
+				
+				// IPC
+				new status;
+				GetTrieValue(g_hTrie, Split[i], status);
+				
+				Call_StartForward(g_hOnReceiveForward);
+				Call_PushString(Split[i]);
+				Call_PushCell(status);
+				Call_PushString((strlen(Split3[i]) > 0 ? Split3[i] : "N/A"));
+				Call_Finish();
 			}
 		}
 	}

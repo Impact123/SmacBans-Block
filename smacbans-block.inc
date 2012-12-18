@@ -27,7 +27,7 @@ stock SmacbansPrintAdminNotice(admflag, const String:format[], any:...)
 	
 	for(new i; i <= MaxClients; i++)
 	{
-		if(IsClientValid(i))
+		if(SmacbansIsClientValid(i))
 		{
 			if(CheckCommandAccess(i, "smacbans_admin", admflag, false))
 			{
@@ -70,7 +70,7 @@ stock SmacbansDebug(bool:enabled, const String:format[], any:...)
  * @param client		Client index.
  * @return				True if client is usable, false otherwise.
 */
-stock IsClientUsable(client)
+stock SmacbansIsClientUsable(client)
 {
 	if(client > 0 && client <= MaxClients)
 	{
@@ -89,7 +89,7 @@ stock IsClientUsable(client)
  * @param client		Client index.
  * @return				True if client is authorized and usable, false otherwise.
 */
-stock IsClientUsableAuth(client)
+stock SmacbansIsClientUsableAuth(client)
 {
 	if(client > 0 && client <= MaxClients && IsClientAuthorized(client))
 	{
@@ -108,7 +108,7 @@ stock IsClientUsableAuth(client)
  * @param client		CLient index.
  * @return				True if client is valid, false otherwise.
 */
-stock bool:IsClientValid(id)
+stock bool:SmacbansIsClientValid(id)
 {
 	if(id > 0 && id <= MaxClients && IsClientInGame(id))
 	{
@@ -128,12 +128,12 @@ stock bool:IsClientValid(id)
  * @return				Clientindex or -1 on failure.
 */
 // Used to find a matching client to an auth
-stock GetClientFromSteamId(const String:auth[])
+stock SmacbansGetClientFromSteamId(const String:auth[])
 {
 	new String:clientAuth[MAX_STEAMAUTH_LENGTH];
 	for(new i; i <= MaxClients; i++) 
 	{
-		if(IsClientUsableAuth(i) && !IsFakeClient(i))
+		if(SmacbansIsClientUsableAuth(i) && !IsFakeClient(i))
 		{
 			GetClientAuthString(i, clientAuth, sizeof(clientAuth));
 			
@@ -158,7 +158,7 @@ stock GetClientFromSteamId(const String:auth[])
  * @param maxlen		Length of buffer.
  * @noreturn
  */
-stock LongToIp(long, String:str[], maxlen)
+stock SmacbansLongToIp(long, String:str[], maxlen)
 {
 	new pieces[4];
 	
@@ -169,3 +169,50 @@ stock LongToIp(long, String:str[], maxlen)
 	
 	Format(str, maxlen, "%d.%d.%d.%d", pieces[0], pieces[1], pieces[2], pieces[3]); 
 }
+
+
+
+
+// Banstatus
+#define BANSTATUS_UNKNOWN    0
+#define BANSTATUS_NOT_BANNED 1
+#define BANSTATUS_IS_BANNED  2
+
+
+
+
+/**
+ * Called after the apiresponse was processed and all actions have been done
+ * Note: In some rare cases the client of the authid isn't on the server any more.
+ *    [- This can happen for example if he leaves before the response was received.
+ *    [- Use the included stock to find and validate the owner of the auth
+ *
+ * @param auth			Authid response.
+ * @param banstatus		Banstatus of the auth.
+ * @param banreason		Banreason if banned.
+ * @noreturn
+ */
+forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
+
+
+
+
+/* Do not edit below this line */
+public SharedPlugin:__pl_SmacBans_Block = 
+{
+	name = "SmacBans: Block",
+	file = "smacbans-block.smx",
+#if defined REQUIRE_PLUGIN
+	required = 1,
+#else
+	required = 0,
+#endif
+};
+
+
+
+#if !defined REQUIRE_PLUGIN
+public __pl_SmacBans_Block_SetNTVOptional()
+{
+}
+#endif
