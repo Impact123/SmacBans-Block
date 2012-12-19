@@ -182,10 +182,24 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
 
 
 /**
- * Called after the apiresponse was processed and all actions have been done
+ * Called after the apiresponse was processed but before the block happens.
+ *
+ * @param client		Client index
+ * @param auth			Authid response.
+ * @param banreason		Banreason.
+ * @return				Plugin_Handled to disallow the kick, Plugin_Continue otherwise.
+ */
+forward Action:Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
+
+
+
+
+
+/**
+ * Called after the apiresponse was processed and all actions have been done.
  * Note: In some rare cases the client of the authid isn't on the server any more.
- *    [- This can happen for example if he leaves before the response was received.
- *    [- Use the included stock to find and validate the owner of the auth
+ *    [- This can happen for example if he leaves before the response was received or he was kicked.
+ *    [- Use the included stock to find and validate the owner of the auth.
  *
  * @param auth			Authid response.
  * @param banstatus		Banstatus of the auth.
@@ -197,10 +211,11 @@ forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banre
 
 
 
+
 /* Do not edit below this line */
-public SharedPlugin:__pl_SmacBans_Block = 
+public SharedPlugin:__pl_sbblock = 
 {
-	name = "SmacBans: Block",
+	name = "smacbans-block",
 	file = "smacbans-block.smx",
 #if defined REQUIRE_PLUGIN
 	required = 1,
@@ -212,7 +227,7 @@ public SharedPlugin:__pl_SmacBans_Block =
 
 
 #if !defined REQUIRE_PLUGIN
-public __pl_SmacBans_Block_SetNTVOptional()
+public __pl_sbblock_SetNTVOptional()
 {
 }
 #endif
