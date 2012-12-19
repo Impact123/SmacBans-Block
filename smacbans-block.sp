@@ -270,7 +270,7 @@ public OnPluginStart()
 	g_hMessageVerbosity    = CreateConVar("smacbans_block_message_verbosity", "2", "How verbose the statusmessages should be: 0 - No messages, 1 - Only block messages, 2 - All messages", FCVAR_PLUGIN, true, 0.0, true, 2.0);
 	g_hCacheMessages       = CreateConVar("smacbans_block_cache_messages", "0", "Whether or not statusmessages should be written on check even if the client was cached already", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	g_hPreferredExtension  = CreateConVar("smacbans_block_preferred_extension", "1", "Preferred extension: 0 - EXT_CURL, 1 - EXT_SOCKET", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	g_hKick				   = CreateConVar("smacbans_block_kick", "1", "Kicks players listed on the SacBans global banlist", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hKick				   = CreateConVar("smacbans_block_kick", "1", "Kicks players listed on the SmacBans global banlist", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	
 	
 	AutoExecConfig(true, "smacbans-block");
