@@ -55,7 +55,7 @@ new Handle:g_hPreferredExtension;
 
 // IPC
 new Handle:g_hOnReceiveForward;
-
+new Handle:g_hOnBlockForward;
 
 
 
@@ -154,6 +154,10 @@ new g_iPort;
 new Handle:g_hHostIp;
 new g_iHostIp;
 
+
+// Kick
+new Handle:g_hKick;
+new bool:g_bKick;
 
 
 // This is used to push some more infos with the Useragent-header for tracking
@@ -266,6 +270,7 @@ public OnPluginStart()
 	g_hMessageVerbosity    = CreateConVar("smacbans_block_message_verbosity", "2", "How verbose the statusmessages should be: 0 - No messages, 1 - Only block messages, 2 - All messages", FCVAR_PLUGIN, true, 0.0, true, 2.0);
 	g_hCacheMessages       = CreateConVar("smacbans_block_cache_messages", "0", "Whether or not statusmessages should be written on check even if the client was cached already", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	g_hPreferredExtension  = CreateConVar("smacbans_block_preferred_extension", "1", "Preferred extension: 0 - EXT_CURL, 1 - EXT_SOCKET", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hKick				   = CreateConVar("smacbans_block_kick", "1", "Kicks players listed on the SacBans global banlist", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	
 	
 	AutoExecConfig(true, "smacbans-block");
@@ -280,6 +285,7 @@ public OnPluginStart()
 	g_iMessageVerbosity    = GetConVarInt(g_hMessageVerbosity);
 	g_bCacheMessages       = GetConVarBool(g_hCacheMessages);
 	g_iPreferredExtension  = GetConVarInt(g_hPreferredExtension);
+	g_bKick				   = GetConVarBool(g_hKick);
 	
 	
 	HookConVarChange(g_HVersion, OnCvarChanged);
@@ -290,6 +296,7 @@ public OnPluginStart()
 	HookConVarChange(g_hMessageVerbosity, OnCvarChanged);
 	HookConVarChange(g_hCacheMessages, OnCvarChanged);
 	HookConVarChange(g_hPreferredExtension, OnCvarChanged);
+	HookConVarChange(g_hKick, OnCvarChanged);
 	
 	
 	
@@ -335,10 +342,9 @@ public OnPluginStart()
 	SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
 	
 	
-	
-	// IPC
+	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
-	
+	g_hOnBlockForward   = CreateGlobalForward("Smacbans_OnSteamIDBlock", ET_Event, Param_Cell, Param_String, Param_String);
 	
 	
 	// Lateload
@@ -476,6 +482,10 @@ public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue
 	{
 		g_iPreferredExtension = GetConVarInt(g_hPreferredExtension);
 	}
+	else if(cvar == g_hKick)
+	{
+		g_bKick = GetConVarBool(g_hKick);
+	}
 }
 
 
@@ -524,8 +534,8 @@ public OnClientAuthorized(client, const String:auth[])
 			}
 			
 			
-			// Kick the client
-			if(!IsClientInKickQueue(client))
+			// Kick the client if enabled
+			if(g_bKick && !IsClientInKickQueue(client))
 			{
 				KickClient(client, "%t", "Smacbans_GlobalBanned", COMMUNITYURL);
 			}
@@ -638,7 +648,7 @@ LateCheckAllClients()
 	
 	
 	#if DEBUG == true
-	StrCat(g_sMultiRequestString, sizeof(g_sMultiRequestString), "STEAM_0:0:12345/");
+	//StrCat(g_sMultiRequestString, sizeof(g_sMultiRequestString), "STEAM_0:0:12345/");
 	#endif
 	
 	
@@ -876,6 +886,42 @@ public OnCurlComplete(Handle:hndl, CURLcode: code, any:data)
 
 
 
+bool:Forward_Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[])
+{
+	new Action:result;
+	
+	Call_StartForward(g_hOnBlockForward);
+	Call_PushCell(client);
+	Call_PushString(auth);
+	Call_PushString(banreason);
+	Call_Finish(result);
+	
+	
+	// Action was blocked
+	if(result == Plugin_Handled)
+	{
+		return false;
+	}
+	
+	
+	return true;
+}
+
+
+
+
+Forward_SmacBans_OnSteamIDStatusRetrieved(String:auth[], String:reason[])
+{
+	new status;
+	GetTrieValue(g_hTrie, auth, status);
+	
+	Call_StartForward(g_hOnReceiveForward);
+	Call_PushString(auth);
+	Call_PushCell(status);
+	Call_PushString((strlen(reason) > 0 ? reason : "N/A"));
+	Call_Finish();
+}
+
 
 
 
@@ -1069,9 +1115,16 @@ ProcessResponse(String:data[])
 						LogToFileEx(g_sLogFile, "%N (ID: %s | IP: %s | REASON: %s) is on the SMACBANS global banlist", client, Split[i], ip, (strlen(Split3[i]) > 0 ? Split3[i] : "N/A"));
 					}
 					
-					
-					// Kick the client
-					if(!IsClientInKickQueue(client))
+
+					// Forward blocks the kick
+					if(!Forward_Smacbans_OnSteamIDBlock(client, Split[i], Split3[i]))
+					{
+						// Save him in the cache, otherwise this will not be called on the next rejoin
+						SetTrieValue(g_hTrie, Split[i], CACHE_NOT_BANNED, true);
+						SmacbansDebug(DEBUG, "Set CACHE_NOT_BANNED on client %N due forward", client);
+					}
+					//Kick the client if enabled
+					else if(g_bKick && !IsClientInKickQueue(client))
 					{
 						KickClient(client, "%t", "Smacbans_GlobalBanned", COMMUNITYURL);
 					}
@@ -1120,18 +1173,6 @@ ProcessResponse(String:data[])
 						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_NoMatch", client);
 					}
 				}
-				
-				
-				
-				// IPC
-				new status;
-				GetTrieValue(g_hTrie, Split[i], status);
-				
-				Call_StartForward(g_hOnReceiveForward);
-				Call_PushString(Split[i]);
-				Call_PushCell(status);
-				Call_PushString((strlen(Split3[i]) > 0 ? Split3[i] : "N/A"));
-				Call_Finish();
 			}
 			// Client has left premature (should only happen with connectionspam or something like that), we do caching and logging only then
 			else
@@ -1166,19 +1207,11 @@ ProcessResponse(String:data[])
 					SetTrieValue(g_hTrie, Split[i], CACHE_UNKNOWN, true);
 					SmacbansDebug(DEBUG, "Set CACHE_UNKNOWN on identity %s", Split[i]);
 				}
-				
-				
-				
-				// IPC
-				new status;
-				GetTrieValue(g_hTrie, Split[i], status);
-				
-				Call_StartForward(g_hOnReceiveForward);
-				Call_PushString(Split[i]);
-				Call_PushCell(status);
-				Call_PushString((strlen(Split3[i]) > 0 ? Split3[i] : "N/A"));
-				Call_Finish();
 			}
+			
+			
+			// Forward
+			Forward_SmacBans_OnSteamIDStatusRetrieved(Split[i], Split3[i]);
 		}
 	}
 }
