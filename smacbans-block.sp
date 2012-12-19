@@ -31,7 +31,7 @@
 
 
 // Debug message switch
-#define DEBUG true
+#define DEBUG false
 
 
 // Internal testing doesn't need updatersupport
