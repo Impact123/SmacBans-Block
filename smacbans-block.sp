@@ -56,6 +56,7 @@ new Handle:g_hPreferredExtension;
 // IPC
 new Handle:g_hOnReceiveForward;
 new Handle:g_hOnBlockForward;
+new Handle:g_hOnPushForward;
 
 
 
@@ -344,14 +345,8 @@ public OnPluginStart()
 	
 	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
-	g_hOnBlockForward   = CreateGlobalForward("Smacbans_OnSteamIDBlock", ET_Event, Param_Cell, Param_String, Param_String);
-	
-	
-	// Lateload
-	if(g_bLateLoaded)
-	{
-		LateCheckAllClients();
-	}
+	g_hOnBlockForward   = CreateGlobalForward("SmacBans_OnSteamIDBlock", ET_Event, Param_Cell, Param_String, Param_String);
+	g_hOnPushForward    = CreateGlobalForward("SmacBans_OnSteamIDPush", ET_Event, Param_Cell, Param_String);
 }
 
 
@@ -407,19 +402,28 @@ public Action:Timer_CheckVersion(Handle:timer)
 
 
 
-#if UPDATER == true
+
 public OnAllPluginsLoaded()
 {
+	// Lateload is done here so all plugins get a chance to block the forward
+	if(g_bLateLoaded)
+	{
+		LateCheckAllClients();
+	}
+	
+	
+	#if UPDATER == true
 	// Add the plugin to updater
 	if(LibraryExists("updater"))
 	{
 		Updater_AddPlugin(UPDATERURL);
 	}
+	#endif
 }
 
 
 
-
+#if UPDATER == true
 // Seems like this isn't working anymore
 public OnLibraryAdded(const String:name[])
 {
@@ -465,7 +469,7 @@ public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue
 		g_bCacheMessages = GetConVarBool(g_hCacheMessages);
 	}
 	// We use one callback for both, port and hostipchanges, because if one of these cvar changes we need to reformat the agent
-	// We don't know if the hostip even changes at the moment, normally it shouldn't
+	// We don't know if the hostip or port even changes at the moment, normally they shouldn't
 	else if(cvar == g_hPort || cvar == g_hHostIp)
 	{
 		g_iPort   = GetConVarInt(g_hPort);
@@ -635,13 +639,17 @@ LateCheckAllClients()
 			// Verify the steamid
 			if(MatchRegex(g_hRegex, auth) == 1)
 			{
-				// The client is been checked at the moment
-				g_bIsBeingChecked[i] = true;
-				
-				
-				// Add the auth to the multirequeststring, this can be done with only 1 format, but it's better to understand it like that
-				Format(auth, sizeof(auth), "%s/", auth);
-				Format(g_sMultiRequestString, sizeof(g_sMultiRequestString), "%s%s", g_sMultiRequestString, auth);
+				// Forward allows it
+				if(Forward_SmacBans_OnSteamIDPush(i, auth))
+				{
+					// The client is been checked at the moment
+					g_bIsBeingChecked[i] = true;
+					
+					
+					// Add the auth to the multirequeststring, this can be done with only 1 format, but it's better to understand it like that
+					Format(auth, sizeof(auth), "%s/", auth);
+					Format(g_sMultiRequestString, sizeof(g_sMultiRequestString), "%s%s", g_sMultiRequestString, auth);
+				}
 			}
 		}
 	}
@@ -886,7 +894,30 @@ public OnCurlComplete(Handle:hndl, CURLcode: code, any:data)
 
 
 
-bool:Forward_Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[])
+bool:Forward_SmacBans_OnSteamIDPush(client, String:auth[])
+{
+	new Action:result;
+	
+	Call_StartForward(g_hOnPushForward);
+	Call_PushCell(client);
+	Call_PushString(auth);
+	Call_Finish(result);
+	
+	
+	// Action was blocked
+	if(result == Plugin_Handled)
+	{
+		return false;
+	}
+	
+	
+	return true;
+}
+
+
+
+
+bool:Forward_SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[])
 {
 	new Action:result;
 	
@@ -1115,9 +1146,9 @@ ProcessResponse(String:data[])
 						LogToFileEx(g_sLogFile, "%N (ID: %s | IP: %s | REASON: %s) is on the SMACBANS global banlist", client, Split[i], ip, (strlen(Split3[i]) > 0 ? Split3[i] : "N/A"));
 					}
 					
-
+					
 					// Forward blocks the kick
-					if(!Forward_Smacbans_OnSteamIDBlock(client, Split[i], Split3[i]))
+					if(!Forward_SmacBans_OnSteamIDBlock(client, Split[i], Split3[i]))
 					{
 						// Save him in the cache, otherwise this will not be called on the next rejoin
 						SetTrieValue(g_hTrie, Split[i], CACHE_NOT_BANNED, true);
