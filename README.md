@@ -64,15 +64,21 @@ You can see a list of servers running this plugin [here](http://www.game-monitor
 There is only one thing you should note when compiling.  
 The includefile is included locally, hence it must lie in the same folder as the sourcecode, just like in this repo.
 
-## Integrating
+### Integrating
 In version 0.1.9 some IPC-features were added which you can use in your own plugins.  
 If you write a plugin which integrates with SmacBans: Block we'd be happy to hear about it.  
 
 #### Forwards
 
-	forward Action:Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
+    forward Action:SmacBans_OnSteamIDPush(client, String:auth[]);
+Called before an steamid is pushed to the requeststring and before an request is made.    
+This can can be blocked and for example can be used to disable the check for certain users.
+
+
+    forward Action:Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 Called after the apiresponse was processed but before the block happens.  
-This can can be blocked and for example can be used to allow certain banned used to join a server
+This can can be blocked and for example can be used to allow certain banned used to join a server.
+
 
     forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
 Called after the apiresponse was processed and all actions have been done.  
