@@ -1148,7 +1148,7 @@ ProcessResponse(String:data[])
 					
 					
 					// Forward blocks the kick
-					if(!Forward_SmacBans_OnSteamIDBlock(client, Split[i], Split3[i]))
+					if(g_bKick && !Forward_SmacBans_OnSteamIDBlock(client, Split[i], Split3[i]))
 					{
 						// Save him in the cache, otherwise this will not be called on the next rejoin
 						SetTrieValue(g_hTrie, Split[i], CACHE_NOT_BANNED, true);
