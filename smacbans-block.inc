@@ -187,7 +187,7 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
  * @param client		Client index
  * @param auth			Authid response.
  * @param banreason		Banreason.
- * @return				Plugin_Handled to disallow the kick, Plugin_Continue otherwise.
+ * @return				Plugin_Handled to block the kick, Plugin_Continue otherwise.
  */
 forward Action:Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 
