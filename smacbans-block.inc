@@ -198,6 +198,7 @@ forward Action:SmacBans_OnSteamIDPush(client, String:auth[]);
 
 /**
  * Called after the apiresponse was processed but before the block happens.
+ * Note: Only gets called if kick is enabled.
  *
  * @param client		Client index
  * @param auth			Authid response.
