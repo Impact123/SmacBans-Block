@@ -181,6 +181,21 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
 
 
 
+
+/**
+ * Called before an steamid is pushed to the requeststring and before an request is made.
+ * Note: The steamid will not be cached if you block this.
+ *
+ * @param client		Client index
+ * @param auth			Authid.
+ * @return				Plugin_Handled to block the push, Plugin_Continue otherwise.
+ */
+forward Action:SmacBans_OnSteamIDPush(client, String:auth[]);
+
+
+
+
+
 /**
  * Called after the apiresponse was processed but before the block happens.
  *
@@ -189,7 +204,7 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
  * @param banreason		Banreason.
  * @return				Plugin_Handled to block the kick, Plugin_Continue otherwise.
  */
-forward Action:Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
+forward Action:SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 
 
 
