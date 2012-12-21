@@ -1,6 +1,7 @@
 #include <sourcemod>
 #include <regex>
 #include "smacbans-block"
+#tryinclude "smacbans_ci_version"
 
 #undef REQUIRE_PLUGIN
 #include <updater>
@@ -13,7 +14,15 @@
 
 
 
+/* VERSION MAGIC */
+// If builder versionfile doesn't exist use main version
+#if !defined PLUGIN_CI_VERSION
 #define PLUGIN_VERSION "0.1.8-dev"
+#else
+#define PLUGIN_VERSION PLUGIN_CI_VERSION
+#endif
+/* VERSION MAGIC */
+
 
 
 // Used for the kickmessage
@@ -56,8 +65,6 @@ new Handle:g_hPreferredExtension;
 // IPC
 new Handle:g_hOnReceiveForward;
 new Handle:g_hOnBlockForward;
-new Handle:g_hOnPushForward;
-
 
 
 public Plugin:myinfo = 
@@ -345,8 +352,7 @@ public OnPluginStart()
 	
 	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
-	g_hOnBlockForward   = CreateGlobalForward("SmacBans_OnSteamIDBlock", ET_Event, Param_Cell, Param_String, Param_String);
-	g_hOnPushForward    = CreateGlobalForward("SmacBans_OnSteamIDPush", ET_Event, Param_Cell, Param_String);
+	g_hOnBlockForward   = CreateGlobalForward("SmacBans_OnSteamIDBlock", ET_Ignore, Param_Cell, Param_String, Param_String);
 }
 
 
@@ -639,17 +645,13 @@ LateCheckAllClients()
 			// Verify the steamid
 			if(MatchRegex(g_hRegex, auth) == 1)
 			{
-				// Forward allows it
-				if(Forward_SmacBans_OnSteamIDPush(i, auth))
-				{
-					// The client is been checked at the moment
-					g_bIsBeingChecked[i] = true;
-					
-					
-					// Add the auth to the multirequeststring, this can be done with only 1 format, but it's better to understand it like that
-					Format(auth, sizeof(auth), "%s/", auth);
-					Format(g_sMultiRequestString, sizeof(g_sMultiRequestString), "%s%s", g_sMultiRequestString, auth);
-				}
+				// The client is been checked at the moment
+				g_bIsBeingChecked[i] = true;
+				
+				
+				// Add the auth to the multirequeststring, this can be done with only 1 format, but it's better to understand it like that
+				Format(auth, sizeof(auth), "%s/", auth);
+				Format(g_sMultiRequestString, sizeof(g_sMultiRequestString), "%s%s", g_sMultiRequestString, auth);
 			}
 		}
 	}
@@ -894,48 +896,15 @@ public OnCurlComplete(Handle:hndl, CURLcode: code, any:data)
 
 
 
-bool:Forward_SmacBans_OnSteamIDPush(client, String:auth[])
+
+
+Forward_SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[])
 {
-	new Action:result;
-	
-	Call_StartForward(g_hOnPushForward);
-	Call_PushCell(client);
-	Call_PushString(auth);
-	Call_Finish(result);
-	
-	
-	// Action was blocked
-	if(result == Plugin_Handled)
-	{
-		return false;
-	}
-	
-	
-	return true;
-}
-
-
-
-
-bool:Forward_SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[])
-{
-	new Action:result;
-	
 	Call_StartForward(g_hOnBlockForward);
 	Call_PushCell(client);
 	Call_PushString(auth);
 	Call_PushString(banreason);
-	Call_Finish(result);
-	
-	
-	// Action was blocked
-	if(result == Plugin_Handled)
-	{
-		return false;
-	}
-	
-	
-	return true;
+	Call_Finish();
 }
 
 
@@ -1146,17 +1115,13 @@ ProcessResponse(String:data[])
 						LogToFileEx(g_sLogFile, "%N (ID: %s | IP: %s | REASON: %s) is on the SMACBANS global banlist", client, Split[i], ip, (strlen(Split3[i]) > 0 ? Split3[i] : "N/A"));
 					}
 					
-					
-					// Forward blocks the kick
-					if(g_bKick && !Forward_SmacBans_OnSteamIDBlock(client, Split[i], Split3[i]))
-					{
-						// Save him in the cache, otherwise this will not be called on the next rejoin
-						SetTrieValue(g_hTrie, Split[i], CACHE_NOT_BANNED, true);
-						SmacbansDebug(DEBUG, "Set CACHE_NOT_BANNED on client %N due forward", client);
-					}
+
 					//Kick the client if enabled
-					else if(g_bKick && !IsClientInKickQueue(client))
+					if(g_bKick && !IsClientInKickQueue(client))
 					{
+						// Fire forward
+						Forward_SmacBans_OnSteamIDBlock(client, Split[i], Split3[i]);
+						
 						KickClient(client, "%t", "Smacbans_GlobalBanned", COMMUNITYURL);
 					}
 				}
