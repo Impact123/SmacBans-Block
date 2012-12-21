@@ -1,7 +1,7 @@
 #include <sourcemod>
 #include <regex>
 #include "smacbans-block"
-#tryinclude "smacbans_ci_version"
+#tryinclude "smacbans-block_ci_version"
 
 #undef REQUIRE_PLUGIN
 #include <updater>
@@ -17,9 +17,9 @@
 /* VERSION MAGIC */
 // If builder versionfile doesn't exist use main version
 #if !defined PLUGIN_CI_VERSION
-#define PLUGIN_VERSION "0.1.8-dev"
+	#define PLUGIN_VERSION "0.1.8-dev"
 #else
-#define PLUGIN_VERSION PLUGIN_CI_VERSION
+	#define PLUGIN_VERSION PLUGIN_CI_VERSION
 #endif
 /* VERSION MAGIC */
 
@@ -918,7 +918,7 @@ Forward_SmacBans_OnSteamIDStatusRetrieved(String:auth[], String:reason[])
 	Call_StartForward(g_hOnReceiveForward);
 	Call_PushString(auth);
 	Call_PushCell(status);
-	Call_PushString((strlen(reason) > 0 ? reason : "N/A"));
+	Call_PushString(reason);
 	Call_Finish();
 }
 
