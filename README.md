@@ -72,7 +72,7 @@ If you write a plugin which integrates with SmacBans: Block we'd be happy to hea
 
     forward Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 Called after the apiresponse was processed but before the block happens.  
-It is gauranteed that the clienindex is valid at this time.
+The client is gauranteed to be authorized at this time.
 
 
     forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
