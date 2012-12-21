@@ -70,14 +70,9 @@ If you write a plugin which integrates with SmacBans: Block we'd be happy to hea
 
 #### Forwards
 
-    forward Action:SmacBans_OnSteamIDPush(client, String:auth[]);
-Called before an steamid is pushed to the requeststring and before an request is made.    
-This can can be blocked and for example can be used to disable the check for certain users.
-
-
-    forward Action:Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
+    forward Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 Called after the apiresponse was processed but before the block happens.  
-This can can be blocked and for example can be used to allow certain banned used to join a server.
+It is gauranteed that the clienindex is valid at this time.
 
 
     forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
