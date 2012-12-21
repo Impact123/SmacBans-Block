@@ -185,10 +185,11 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
 /**
  * Called after the apiresponse was processed but before the block happens.
  * Note: Only gets called if kick is enabled.
+ *    [- The client is gauranteed to be authorized at this time.
  *
  * @param client		Client index
  * @param auth			Authid response.
- * @param banreason		Banreason.
+ * @param banreason		Banreason if available.
  * @noreturn
  */
 forward SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
@@ -199,8 +200,7 @@ forward SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 
 /**
  * Called after the apiresponse was processed and all actions have been done.
- * Note: In some rare cases the client of the authid isn't on the server any more.
- *    [- This can happen for example if he leaves before the response was received or he was kicked.
+ * Note: The client is not gauranteed to be authorized at this time.
  *    [- Use the included stock to find and validate the owner of the auth.
  *
  * @param auth			Authid response.
