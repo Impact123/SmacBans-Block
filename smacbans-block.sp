@@ -29,7 +29,7 @@
 
 
 // Should updater support be enabled?
-#define UPDATER false
+#define UPDATER true
 
 
 // Is this a devbuild?
