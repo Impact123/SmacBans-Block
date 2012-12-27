@@ -1,7 +1,6 @@
 #include <sourcemod>
 #include <regex>
 #include "smacbans-block"
-#tryinclude "smacbans-block_ci_version"
 
 #undef REQUIRE_PLUGIN
 #include <updater>
@@ -14,23 +13,9 @@
 
 
 
-/* VERSION MAGIC */
-// If builder versionfile doesn't exist use main version
-#if !defined PLUGIN_CI_VERSION
-	#define PLUGIN_VERSION "0.1.8-dev"
-#else
-	#define PLUGIN_VERSION PLUGIN_CI_VERSION
-#endif
-/* VERSION MAGIC */
-
-
-
 // Used for the kickmessage
 #define COMMUNITYURL "smacbans.com"
 
-
-// Used for updater
-#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
 
 
 // Api
@@ -39,12 +24,38 @@
 #define USERAGENT "SmacBans_Blockx"
 
 
-// Debug message switch
+// Should debugmessages be enabled?
 #define DEBUG false
 
 
-// Internal testing doesn't need updatersupport
+// Should updater support be enabled?
 #define UPDATER false
+
+
+// Is this a devbuild?
+#define DEV_BUILD true
+
+
+
+/* VERSION MAGIC */
+// If is no devbuild use the main version
+#if DEV_BUILD != true
+	#define PLUGIN_VERSION "0.1.9-dev"
+#else
+	#define PLUGIN_VERSION "0.1.9-dev-33"
+#endif
+/* VERSION MAGIC */
+
+
+
+/* UPDATER MAGIC */
+#if DEV_BUILD != true
+	// Used for updater
+	#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
+#else
+	#define UPDATERURL "http://update.smacbans.com/block_beta/smacbans-block_beta.txt"
+#endif
+/* UPDATER MAGIC */
 
 
 
@@ -172,6 +183,11 @@ new bool:g_bKick;
 new String:g_sDynamicUserAgent[128];
 
 
+#if DEV_BUILD == true && UPDATER == true
+// Updater - update
+new Handle:g_hUpdaterCheckTime;
+#endif
+
 
 // Pluginversionstatus
 new g_iPluginVersionStatus;
@@ -239,6 +255,8 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 
 public OnPluginStart()
 {
+	SmacbansDebug(DEBUG, "Using Updaterurl: %s", UPDATERURL);
+	
 	// Cache
 	g_hTrie = CreateTrie();
 	
@@ -423,6 +441,14 @@ public OnAllPluginsLoaded()
 	if(LibraryExists("updater"))
 	{
 		Updater_AddPlugin(UPDATERURL);
+		
+		#if DEV_BUILD == true && UPDATER == true
+		if(g_hUpdaterCheckTime == INVALID_HANDLE)
+		{
+			g_hUpdaterCheckTime = CreateTimer(3600.0, Timer_ForceUpdate, _, TIMER_REPEAT);
+			Timer_ForceUpdate(INVALID_HANDLE);
+		}
+		#endif
 	}
 	#endif
 }
@@ -436,10 +462,32 @@ public OnLibraryAdded(const String:name[])
 	if(StrEqual(name, "updater"))
 	{
 		Updater_AddPlugin(UPDATERURL);
+		
+		#if DEV_BUILD == true && UPDATER == true
+		if(g_hUpdaterCheckTime == INVALID_HANDLE)
+		{
+			g_hUpdaterCheckTime = CreateTimer(3600.0, Timer_ForceUpdate, _, TIMER_REPEAT);
+			Timer_ForceUpdate(INVALID_HANDLE);
+		}
+		#endif
 	}
 }
 #endif
 
+
+
+
+#if DEV_BUILD == true && UPDATER == true
+public Action:Timer_ForceUpdate(Handle:timer)
+{
+	if(LibraryExists("updater"))
+	{
+		Updater_ForceUpdate();
+	}
+	
+	return Plugin_Continue;
+}
+#endif
 
 
 
@@ -925,6 +973,7 @@ Forward_SmacBans_OnSteamIDStatusRetrieved(String:auth[], String:reason[])
 
 
 
+
 ProcessResponse(String:data[])
 {
 	SmacbansDebug(DEBUG, "Processing response");
@@ -1206,7 +1255,7 @@ ProcessResponse(String:data[])
 			}
 			
 			
-			// Forward
+			// Fire forward
 			Forward_SmacBans_OnSteamIDStatusRetrieved(Split[i], Split3[i]);
 		}
 	}

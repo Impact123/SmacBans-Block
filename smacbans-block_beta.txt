@@ -1,0 +1,18 @@
+"Updater"
+{
+	"Information"
+	{
+		"Version"
+		{
+			"Latest"	"0.1.9-dev33"
+		}
+	}
+	
+	"Files"
+	{
+		"Plugin"	"Path_SM/plugins/smacbans-block.smx"
+		"Plugin"	"Path_SM/translations/smacbans-block.phrases.txt"
+		"Source"	"Path_SM/scripting/smacbans-block.sp"
+		"Source"	"Path_SM/scripting/include/smacbans-block.inc"
+	}
+}
