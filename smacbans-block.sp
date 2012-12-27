@@ -42,7 +42,7 @@
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
-	#define PLUGIN_VERSION "0.1.9-dev-33"
+	#define PLUGIN_VERSION "0.1.9-dev33"
 #endif
 /* VERSION MAGIC */
 
