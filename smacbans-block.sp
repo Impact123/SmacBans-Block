@@ -37,25 +37,22 @@
 
 
 
-/* VERSION MAGIC */
 // If is no devbuild use the main version
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
 	#define PLUGIN_VERSION "0.1.9-dev33"
 #endif
-/* VERSION MAGIC */
 
 
 
-/* UPDATER MAGIC */
+// Used for updater
 #if DEV_BUILD != true
-	// Used for updater
+
 	#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
 #else
 	#define UPDATERURL "http://update.smacbans.com/block_beta/smacbans-block_beta.txt"
 #endif
-/* UPDATER MAGIC */
 
 
 
@@ -371,6 +368,13 @@ public OnPluginStart()
 	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
 	g_hOnBlockForward   = CreateGlobalForward("SmacBans_OnSteamIDBlock", ET_Ignore, Param_Cell, Param_String, Param_String);
+	
+	
+	// Lateload
+	if(g_bLateLoaded)
+	{
+		LateCheckAllClients();
+	}
 }
 
 
@@ -429,13 +433,6 @@ public Action:Timer_CheckVersion(Handle:timer)
 
 public OnAllPluginsLoaded()
 {
-	// Lateload is done here so all plugins get a chance to block the forward
-	if(g_bLateLoaded)
-	{
-		LateCheckAllClients();
-	}
-	
-	
 	#if UPDATER == true
 	// Add the plugin to updater
 	if(LibraryExists("updater"))
@@ -455,8 +452,10 @@ public OnAllPluginsLoaded()
 
 
 
+
 #if UPDATER == true
-// Seems like this isn't working anymore
+// Seems like this isn't working correctly
+// Should be fixed in the next release
 public OnLibraryAdded(const String:name[])
 {
 	if(StrEqual(name, "updater"))
