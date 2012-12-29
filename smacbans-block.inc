@@ -22,8 +22,7 @@
 */
 stock SmacbansPrintAdminNotice(admflag, const String:format[], any:...)
 {
-	decl String:Message[4096];
-	VFormat(Message, sizeof(Message), format, 3);
+	decl String:Message[192];
 	
 	for(new i; i <= MaxClients; i++)
 	{
@@ -32,6 +31,7 @@ stock SmacbansPrintAdminNotice(admflag, const String:format[], any:...)
 			if(CheckCommandAccess(i, "smacbans_admin", admflag, false))
 			{
 				SetGlobalTransTarget(i);
+				VFormat(Message, sizeof(Message), format, 3);
 				PrintToChat(i, Message);
 			}
 		}
