@@ -41,7 +41,7 @@
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
-	#define PLUGIN_VERSION "0.1.9-dev33"
+	#define PLUGIN_VERSION "0.1.9-dev34"
 #endif
 
 
@@ -252,8 +252,6 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 
 public OnPluginStart()
 {
-	SmacbansDebug(DEBUG, "Using Updaterurl: %s", UPDATERURL);
-	
 	// Cache
 	g_hTrie = CreateTrie();
 	
