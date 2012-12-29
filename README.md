@@ -62,7 +62,7 @@ You can see a list of servers running this plugin [here](http://www.game-monitor
 
 ### Compiling
 There is only one thing you should note when compiling.  
-The includefile is included locally, hence it must lie in the same folder as the sourcecode, just like in this repo.
+The includefile is included locally, hence it can lie in the same folder as the sourcecode, just like in this repo.
 
 ### Integrating
 In version 0.1.9 some IPC-features were added which you can use in your own plugins.  
