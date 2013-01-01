@@ -959,10 +959,22 @@ Forward_SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[])
 
 
 
-Forward_SmacBans_OnSteamIDStatusRetrieved(String:auth[], String:reason[])
+Forward_SmacBans_OnSteamIDStatusRetrieved(String:auth[], String:banstatus[], String:reason[])
 {
 	new status;
-	GetTrieValue(g_hTrie, auth, status);
+	
+	if(banstatus[0] == 'Y')
+	{
+		status = BANSTATUS_IS_BANNED;
+	}
+	else if(banstatus[0] == 'N')
+	{
+		status = BANSTATUS_NOT_BANNED;
+	}
+	else
+	{
+		status = BANSTATUS_UNKNOWN;
+	}
 	
 	Call_StartForward(g_hOnReceiveForward);
 	Call_PushString(auth);
@@ -1115,6 +1127,10 @@ ProcessResponse(String:data[])
 		// Verify the steamid
 		if(strlen(Split[i]) > 0 && MatchRegex(g_hRegex, Split[i]) == 1)
 		{
+			// Fire forward
+			Forward_SmacBans_OnSteamIDStatusRetrieved(Split[i], Split2[i], Split3[i]);
+			
+			
 			// Search the client which matches the steamid
 			client = SmacbansGetClientFromSteamId(Split[i]);
 			
@@ -1254,10 +1270,6 @@ ProcessResponse(String:data[])
 					SmacbansDebug(DEBUG, "Set CACHE_UNKNOWN on identity %s", Split[i]);
 				}
 			}
-			
-			
-			// Fire forward
-			Forward_SmacBans_OnSteamIDStatusRetrieved(Split[i], Split3[i]);
 		}
 	}
 }
