@@ -183,7 +183,24 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
 
 
 /**
- * Called after the apiresponse was processed but before the block happens.
+ * Called after the status of an steamid was retrieved.
+ * Note: It is not gauranteed that the owner of the auth is available at this time.
+ *    [- Use the included stock to find and validate the owner of the auth.
+ *
+ * @param auth			Authid response.
+ * @param banstatus		Banstatus of the auth.
+ * @param banreason		Banreason if banned.
+ * @noreturn
+ */
+forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
+
+
+
+
+
+
+/**
+ * Called after the status of a banned steamid was retrieved and the owner is about to be kicked.
  * Note: Only gets called if kick is enabled.
  *    [- The client is gauranteed to be authorized at this time.
  *
@@ -194,21 +211,6 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
  */
 forward SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 
-
-
-
-
-/**
- * Called after the apiresponse was processed and all actions have been done.
- * Note: The client is not gauranteed to be authorized at this time.
- *    [- Use the included stock to find and validate the owner of the auth.
- *
- * @param auth			Authid response.
- * @param banstatus		Banstatus of the auth.
- * @param banreason		Banreason if banned.
- * @noreturn
- */
-forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
 
 
 
