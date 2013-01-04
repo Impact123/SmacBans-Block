@@ -15,7 +15,7 @@ The code here is often not tested extensively enough to use if for productively 
 If you're not a developer or do not intend to help us by testing unstable versions you should visit [our website](http://smacbans.com) for a stable release.  
 
 ### Downloading an developement build
-Every time something is commited into this reposity the plugin will be build [here](http://vs.gugyclan.eu:8000/job/SmacBans-Block/).  
+Every time something is committed into the masterbranch of this reposity the plugin will be build [here](http://vs.gugyclan.eu:8000/job/SmacBans-Block/).  
 The files are compiled from the sourcecode you see here, therefore the warning above also applies to these builds.  
 **Use them at your own risk.**
 
