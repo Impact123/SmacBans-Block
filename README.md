@@ -1,6 +1,6 @@
 # SmacBans: Block
 
-[![Smacbans: Block logo](https://www.smacbans.com/images/plugin.png)](http://smacbans.com)  
+[![Smacbans: Block logo](https://www.smacbans.com/images/plugin_noversion.png)](http://smacbans.com)  
 SmacBans: Block is a plugin designed to keep cheaters who have been detected by SMAC away from your server.  
 [Smacbans.com](http://smacbans.com) provides a global banlist where caught cheaters are stored, this plugin will check every player against this list.  
 If they were found in this list they immediately will be thrown out of your server.  
