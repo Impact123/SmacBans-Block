@@ -454,8 +454,8 @@ LoadCache()
 		}
 
 		
-		// Line is not a steamid
-		if(StrContains(sReadBuffer, "STEAM_")  == -1)
+		// Line must start with STEAM_ is not a steamid
+		if(StrContains(sReadBuffer, "STEAM_")  != 0)
 		{
 			continue;
 		}
