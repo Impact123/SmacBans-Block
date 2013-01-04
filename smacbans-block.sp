@@ -432,16 +432,15 @@ public Action:Timer_CheckVersion(Handle:timer)
 
 
 
-
+#if UPDATER == true
 public OnAllPluginsLoaded()
 {
-	#if UPDATER == true
 	// Add the plugin to updater
 	if(LibraryExists("updater"))
 	{
 		Updater_AddPlugin(UPDATERURL);
 		
-		#if DEV_BUILD == true && UPDATER == true
+		#if DEV_BUILD == true
 		if(g_hUpdaterCheckTime == INVALID_HANDLE)
 		{
 			g_hUpdaterCheckTime = CreateTimer(3600.0, Timer_ForceUpdate, _, TIMER_REPEAT);
@@ -449,13 +448,9 @@ public OnAllPluginsLoaded()
 		}
 		#endif
 	}
-	#endif
 }
 
 
-
-
-#if UPDATER == true
 // Seems like this isn't working correctly
 // Should be fixed in the next release
 public OnLibraryAdded(const String:name[])
@@ -464,7 +459,7 @@ public OnLibraryAdded(const String:name[])
 	{
 		Updater_AddPlugin(UPDATERURL);
 		
-		#if DEV_BUILD == true && UPDATER == true
+		#if DEV_BUILD == true
 		if(g_hUpdaterCheckTime == INVALID_HANDLE)
 		{
 			g_hUpdaterCheckTime = CreateTimer(3600.0, Timer_ForceUpdate, _, TIMER_REPEAT);
@@ -472,6 +467,12 @@ public OnLibraryAdded(const String:name[])
 		}
 		#endif
 	}
+}
+
+
+public Updater_OnPluginUpdated()
+{
+	ReloadPlugin();
 }
 #endif
 
