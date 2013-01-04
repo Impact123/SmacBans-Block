@@ -42,7 +42,7 @@
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
-	#define PLUGIN_VERSION "0.1.9-dev36"
+	#define PLUGIN_VERSION "0.1.9-dev37"
 #endif
 
 
@@ -454,7 +454,7 @@ LoadCache()
 		}
 
 		
-		// Line must start with STEAM_ is not a steamid
+		// Line doesn't start with STEAM_
 		if(StrContains(sReadBuffer, "STEAM_")  != 0)
 		{
 			continue;
