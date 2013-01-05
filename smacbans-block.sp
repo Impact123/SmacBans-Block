@@ -42,14 +42,13 @@
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
-	#define PLUGIN_VERSION "0.1.9-dev37"
+	#define PLUGIN_VERSION "0.1.9-dev38"
 #endif
 
 
 
 // Used for updater
 #if DEV_BUILD != true
-
 	#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
 #else
 	#define UPDATERURL "http://update.smacbans.com/block_beta/smacbans-block_beta.txt"
