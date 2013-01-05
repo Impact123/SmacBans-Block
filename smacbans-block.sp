@@ -373,8 +373,9 @@ public OnPluginStart()
 	SmacbansLongToIp(g_iHostIp, sHostIp, sizeof(sHostIp));
 	Format(g_sDynamicUserAgent, sizeof(g_sDynamicUserAgent), "[%s] (%s) <%s:%d>", USERAGENT, PLUGIN_VERSION, sHostIp, g_iPort);
 	
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
-	
+	#endif
 	
 	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
@@ -403,8 +404,16 @@ public OnPluginEnd()
 // Loads the temporary cachefile which was saved on shutdown
 LoadCache()
 {
+	#if DEBUG == true
+	SmacbansDebug(DEBUG, "Trying to load filecache");
+	#endif
+	
 	if(!FileExists(g_sTempCacheFile))
 	{
+		#if DEBUG == true
+		SmacbansDebug(DEBUG, "Failed to load filecache, file doesn't exist");
+		#endif
+		
 		return;
 	}
 	
@@ -417,6 +426,10 @@ LoadCache()
 	// If the cachefile is older than 10 minutes we ignore and delete it
 	if( (time - filetime) >= (SECONDS_MINUTE * 10) )
 	{
+		#if DEBUG == true
+		SmacbansDebug(DEBUG, "Failed to load load filecache, file is too old exist");
+		#endif
+		
 		DeleteFile(g_sTempCacheFile);
 		return;
 	}
@@ -426,6 +439,10 @@ LoadCache()
 	
 	if(hFile == INVALID_HANDLE)
 	{
+		#if DEBUG == true
+		SmacbansDebug(DEBUG, "Failed to load load filecache, filehandle was invalid");
+		#endif
+		
 		return;
 	}
 	
@@ -465,7 +482,9 @@ LoadCache()
 		ExplodeString(sReadBuffer, "|", sSplitBuffer, sizeof(sSplitBuffer), sizeof(sSplitBuffer[]));
 		
 		
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Loadcache: One: %s, Two: %s", sSplitBuffer[0], sSplitBuffer[1]);
+		#endif
 		
 		
 		// Statusbuffer must be exactly 1 char, also it must be between the range of the defined cachevalues 
@@ -487,6 +506,10 @@ LoadCache()
 		SetTrieString(g_hTrie, sSplitBuffer[0], sSplitBuffer[1], true);
 	}
 	
+	#if DEBUG == true
+	SmacbansDebug(DEBUG, "Loaded filecache successfully");
+	#endif
+	
 	CloseHandle(hFile);
 	DeleteFile(g_sTempCacheFile);
 }
@@ -498,6 +521,10 @@ LoadCache()
 // If we would not do this and the plugin is reloaded the chat is spammed with their apiresults
 StoreCache()
 {
+	#if DEBUG == true
+	SmacbansDebug(DEBUG, "Trying to store filecache");
+	#endif
+	
 	new count;
 	
 	// Limited but fast check
@@ -513,6 +540,10 @@ StoreCache()
 	// There are no cached players in the server
 	if(count < 1)
 	{
+		#if DEBUG == true
+		SmacbansDebug(DEBUG, "Failed to store filecache, no cached players found");
+		#endif
+		
 		if(FileExists(g_sTempCacheFile))
 		{
 			DeleteFile(g_sTempCacheFile);
@@ -526,6 +557,10 @@ StoreCache()
 	
 	if(hFile == INVALID_HANDLE)
 	{
+		#if DEBUG == true
+		SmacbansDebug(DEBUG, "Failed to store filecache, filehandle was invalid");
+		#endif
+		
 		return;
 	}
 	
@@ -550,6 +585,10 @@ StoreCache()
 			WriteFileLine(hFile, "%s|%d", sIDBuffer, iStatusBuffer);
 		}
 	}
+	
+	#if DEBUG == true
+	SmacbansDebug(DEBUG, "Stored filecache successfully");
+	#endif
 	
 	CloseHandle(hFile);
 }
@@ -712,7 +751,9 @@ public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue
 		SmacbansLongToIp(g_iHostIp, sHostIp, sizeof(sHostIp));
 		Format(g_sDynamicUserAgent, sizeof(g_sDynamicUserAgent), "[%s] (%s) <%s:%d>", USERAGENT, PLUGIN_VERSION, sHostIp, g_iPort);
 		
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
+		#endif
 	}
 	else if(cvar == g_hPreferredExtension)
 	{
@@ -739,8 +780,9 @@ public OnClientAuthorized(client, const String:auth[])
 		// Get the cachestatus
 		GetTrieValue(g_hTrie, auth, status);
 		
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "%N's cache is set to %d", client, status);
-		
+		#endif
 		
 		
 		// Player was not checked before, or check failed
@@ -810,7 +852,9 @@ public OnClientAuthorized(client, const String:auth[])
 
 public OnClientPostAdminCheck(client)
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Client %N Joined the game", client);
+	#endif
 	
 	if(g_bWelcomeMessage)
 	{
@@ -891,7 +935,10 @@ LateCheckAllClients()
 	// Only if there where people we need to check
 	if(g_sMultiRequestString[0] != '\0')
 	{
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Multi: %s", g_sMultiRequestString);
+		#endif
+		
 		CheckLateClients();
 	}
 }
@@ -903,13 +950,17 @@ LateCheckAllClients()
 
 CheckLateClients()
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Checking Late Clients");
+	#endif
 	
 	
 	// Using Socket, if you prefer curl we have an overhead of ~0.002 milliseconds because the check is done twice
 	if(SOCKET_AVAILABLE() && !(g_iPreferredExtension == EXT_CURL && CURL_AVAILABLE()) )
 	{
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Prepare a new check with Socket");
+		#endif
 		
 		
 		// Create a new socket
@@ -944,7 +995,9 @@ CheckLateClients()
 	// Using cURL
 	else if(CURL_AVAILABLE())
 	{
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Prepare a new check with cURL");
+		#endif
 		
 		
 		// Declare the Buffer which will be formatted as a http request
@@ -989,7 +1042,9 @@ CheckLateClients()
 // ------------------------------------------------ SOCKET -------------------------------------------------------
 public OnSocketConnect(Handle:socket, any:data)
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Socket Connected");
+	#endif
 	
 	// If socket is connected, should be since this is the callback that is called if it is connected
 	if(SocketIsConnected(socket))
@@ -1010,7 +1065,9 @@ public OnSocketConnect(Handle:socket, any:data)
 		ReadPackString(data, TempRequestString, sizeof(TempRequestString));
 		
 		
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Pack: %s", TempRequestString);
+		#endif
 		
 		
 		// Close the pack
@@ -1028,7 +1085,9 @@ public OnSocketConnect(Handle:socket, any:data)
 		SocketSend(socket, sRequestString);
 		
 		
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Socket Send");
+		#endif
 	}
 }
 
@@ -1038,7 +1097,9 @@ public OnSocketConnect(Handle:socket, any:data)
 
 public OnSocketReceive(Handle:socket, String:data[], const size, any:data2) 
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Socket Receive");
+	#endif
 	
 	if(socket != INVALID_HANDLE)
 	{
@@ -1060,7 +1121,9 @@ public OnSocketReceive(Handle:socket, String:data[], const size, any:data2)
 
 public OnSocketDisconnect(Handle:socket, any:data)
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Socket Disconnect");
+	#endif
 	
 	if(socket != INVALID_HANDLE)
 	{
@@ -1074,7 +1137,9 @@ public OnSocketDisconnect(Handle:socket, any:data)
 
 public OnSocketError(Handle:socket, const errorType, const errorNum, any:client)
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Socket Error: %d, %d", errorType, errorNum);
+	#endif
 	
 	if(socket != INVALID_HANDLE)
 	{
@@ -1092,7 +1157,9 @@ public OnSocketError(Handle:socket, const errorType, const errorNum, any:client)
 // ------------------------------------------------ CURL -------------------------------------------------------
 public OnCurlReceive(Handle:hndl, String:data[], const bytes, const nmemb)
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Curl Receive");
+	#endif
 	
 	// Process the response
 	ProcessResponse(data);
@@ -1106,6 +1173,7 @@ public OnCurlReceive(Handle:hndl, String:data[], const bytes, const nmemb)
 
 public OnCurlComplete(Handle:hndl, CURLcode: code, any:data)
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Request completed");
 	
 	if(code != CURLE_OK)
@@ -1114,6 +1182,7 @@ public OnCurlComplete(Handle:hndl, CURLcode: code, any:data)
 		curl_easy_strerror(code, error, sizeof(error));
 		SmacbansDebug(DEBUG, "Curl Error: %d, %s", code, error);
 	}
+	#endif
 	
 	CloseHandle(hndl);
 }
@@ -1166,7 +1235,9 @@ Forward_SmacBans_OnSteamIDStatusRetrieved(String:auth[], String:banstatus[], Str
 
 ProcessResponse(String:data[])
 {
+	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Processing response");
+	#endif
 	
 	
 	// This fixes an bug on windowsservers
@@ -1175,7 +1246,9 @@ ProcessResponse(String:data[])
 	// Other than that if the api is down, the request was malformed etcetera we don't waste resources for working with useless data
 	if(StrContains(data, "<?xml", false) == -1 && MatchRegex(g_hRegex, data) < 1)
 	{
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Something went wrong while fetching response %s:%d, Query: %s", APIURL, APIPORT, g_sMultiRequestString);
+		#endif
 		
 		return;
 	}
@@ -1272,7 +1345,10 @@ ProcessResponse(String:data[])
 	if(strlen(Split4[1]) == 1)
 	{
 		g_iPluginVersionStatus = StringToInt(Split4[1]);
+		
+		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Versionstatus: was set to %d", g_iPluginVersionStatus);
+		#endif
 	}
 	
 	
@@ -1323,7 +1399,9 @@ ProcessResponse(String:data[])
 				g_bWasChecked[client] = true;
 				
 				
+				#if DEBUG == true
 				SmacbansDebug(DEBUG, "Name: %N | Id: %s | Status: %s", client, Split[i], Split2[i]);
+				#endif
 				
 				
 				// Banned
@@ -1331,7 +1409,10 @@ ProcessResponse(String:data[])
 				{
 					// Save him in the cache
 					SetTrieValue(g_hTrie, Split[i], CACHE_IS_BANNED, true);
+					
+					#if DEBUG == true
 					SmacbansDebug(DEBUG, "Set CACHE_IS_BANNED on client %N", client);
+					#endif
 					
 					
 					// Verbosity, block
@@ -1373,7 +1454,10 @@ ProcessResponse(String:data[])
 				{
 					// Save him in the cache
 					SetTrieValue(g_hTrie, Split[i], CACHE_NOT_BANNED, true);
+					
+					#if DEBUG == true
 					SmacbansDebug(DEBUG, "Set CACHE_NOT_BANNED on client %N", client);
+					#endif
 					
 					
 					// Verbosity, no block
@@ -1395,7 +1479,10 @@ ProcessResponse(String:data[])
 				{
 					// Save him in the cache
 					SetTrieValue(g_hTrie, Split[i], CACHE_UNKNOWN, true);
+					
+					#if DEBUG == true
 					SmacbansDebug(DEBUG, "Set CACHE_UNKNOWN on client %N", client);
+					#endif
 					
 					
 					// Remove the checked flag, so the client gets rechecked next time
@@ -1416,15 +1503,19 @@ ProcessResponse(String:data[])
 			// Client has left premature (should only happen with connectionspam or something like that), we do caching and logging only then
 			else
 			{
+				#if DEBUG == true
 				SmacbansDebug(DEBUG, "Identity %s hast left the game premature", Split[i]);
+				#endif
 				
 				// Banned
 				if(Split2[i][0] == 'Y')
 				{
 					// Save the identity in the cache
 					SetTrieValue(g_hTrie, Split[i], CACHE_IS_BANNED, true);
-					SmacbansDebug(DEBUG, "Set CACHE_IS_BANNED on identity %s", Split[i]);
 					
+					#if DEBUG == true
+					SmacbansDebug(DEBUG, "Set CACHE_IS_BANNED on identity %s", Split[i]);
+					#endif
 					
 					// Log a bit (if enabled)
 					if(g_bLogEnabled)
@@ -1437,14 +1528,20 @@ ProcessResponse(String:data[])
 				{
 					// Save the identity in the cache
 					SetTrieValue(g_hTrie, Split[i], CACHE_NOT_BANNED, true);
+					
+					#if DEBUG == true
 					SmacbansDebug(DEBUG, "Set CACHE_NOT_BANNED on identity %s", Split[i]);
+					#endif
 				}
 				// We don't know
 				else
 				{
 					// Save the identity in the cache
 					SetTrieValue(g_hTrie, Split[i], CACHE_UNKNOWN, true);
+					
+					#if DEBUG == true
 					SmacbansDebug(DEBUG, "Set CACHE_UNKNOWN on identity %s", Split[i]);
+					#endif
 				}
 			}
 		}
