@@ -22,7 +22,7 @@
 // Api
 #define APIURL "api.smacbans.com"
 #define APIPORT 80
-#define USERAGENT "SmacBans_Blockx"
+#define USERAGENT "SmacBans_Block"
 
 
 // Should debugmessages be enabled?
