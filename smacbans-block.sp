@@ -575,7 +575,7 @@ StoreCache()
 	new iStatusBuffer;
 	
 	
-	for(new i; i < MaxClients; i++)
+	for(new i; i <= MaxClients; i++)
 	{
 		if(SmacbansIsClientUsableAuth(i))
 		{
