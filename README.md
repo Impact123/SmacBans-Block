@@ -75,6 +75,7 @@ In order to compile SmacBans:Block you need the following dependencies in your i
 ## Integrating
 In version 0.1.9 some IPC-features were added which you can use in your own plugins.  
 If you write a plugin which integrates with SmacBans: Block we'd be happy to hear about it.  
+More features can be added on request if needed.  
 
 ### Forwards
 
