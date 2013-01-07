@@ -42,7 +42,7 @@
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
-	#define PLUGIN_VERSION "0.1.9-dev38"
+	#define PLUGIN_VERSION "0.1.9-dev39"
 #endif
 
 
@@ -57,8 +57,8 @@
 
 
 // Dependencies
-#define SOCKET_AVAILABLE()		(GetFeatureStatus(FeatureType_Native, "SocketCreate")   == FeatureStatus_Available)
-#define CURL_AVAILABLE()		(GetFeatureStatus(FeatureType_Native, "curl_easy_init") == FeatureStatus_Available)
+#define SOCKET_AVAILABLE()		 (GetFeatureStatus(FeatureType_Native, "SocketCreate")   == FeatureStatus_Available)
+#define CURL_AVAILABLE()		 (GetFeatureStatus(FeatureType_Native, "curl_easy_init") == FeatureStatus_Available)
 #define EXTENSIONS_MISSING_ERROR "This plugin requires either the Socket or cURL extension to work.\nOne of them must be installed and running to use this plugin."
 
 
@@ -123,7 +123,7 @@ new bool:g_bPublicMessages;
 
 // Undetermined action
 new Handle:g_hRecheckUndetermined;
-new g_bRecheckUndetermined;
+new bool:g_bRecheckUndetermined;
 
 
 
@@ -334,7 +334,7 @@ public OnPluginStart()
 	
 	
 	#if DEBUG == true
-	// Check the requirements, if you prefer curl we have an overhead of ~0.002 milliseconds because the check is done twice
+	// Check the requirements, if you prefer curl we have an small overhead because the check is done twice
 	if(SOCKET_AVAILABLE() && !(g_iPreferredExtension == EXT_CURL && CURL_AVAILABLE()) )
 	{
 		SmacbansDebug(DEBUG, "Using Socket");
@@ -426,7 +426,7 @@ LoadCache()
 	if( (time - filetime) >= (SECONDS_MINUTE * 10) )
 	{
 		#if DEBUG == true
-		SmacbansDebug(DEBUG, "Failed to load load filecache, file is too old exist");
+		SmacbansDebug(DEBUG, "Failed to load filecache, file is too old");
 		#endif
 		
 		DeleteFile(g_sTempCacheFile);
@@ -439,7 +439,7 @@ LoadCache()
 	if(hFile == INVALID_HANDLE)
 	{
 		#if DEBUG == true
-		SmacbansDebug(DEBUG, "Failed to load load filecache, filehandle was invalid");
+		SmacbansDebug(DEBUG, "Failed to load filecache, filehandle was invalid");
 		#endif
 		
 		return;
@@ -666,7 +666,7 @@ public OnAllPluginsLoaded()
 
 
 // Seems like this isn't working correctly
-// Should be fixed in the next release
+// Should be fixed in newer snapshots
 public OnLibraryAdded(const String:name[])
 {
 	if(StrEqual(name, "updater"))
@@ -751,7 +751,7 @@ public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue
 		Format(g_sDynamicUserAgent, sizeof(g_sDynamicUserAgent), "[%s] (%s) <%s:%d>", USERAGENT, PLUGIN_VERSION, sHostIp, g_iPort);
 		
 		#if DEBUG == true
-		SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
+		SmacbansDebug(DEBUG, "Dynamic Agent changed to: %s", g_sDynamicUserAgent);
 		#endif
 	}
 	else if(cvar == g_hPreferredExtension)
@@ -954,7 +954,7 @@ CheckLateClients()
 	#endif
 	
 	
-	// Using Socket, if you prefer curl we have an overhead of ~0.002 milliseconds because the check is done twice
+	// Using Socket, if you prefer curl we have an small overhead of because the check is done twice
 	if(SOCKET_AVAILABLE() && !(g_iPreferredExtension == EXT_CURL && CURL_AVAILABLE()) )
 	{
 		#if DEBUG == true
@@ -1085,7 +1085,7 @@ public OnSocketConnect(Handle:socket, any:data)
 		
 		
 		#if DEBUG == true
-		SmacbansDebug(DEBUG, "Socket Send");
+		SmacbansDebug(DEBUG, "Socket Sent");
 		#endif
 	}
 }
