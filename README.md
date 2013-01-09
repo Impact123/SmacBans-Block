@@ -79,13 +79,16 @@ More features can be added on request if needed.
 
 ### Forwards
 
-    forward Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
-Called after the apiresponse was processed but before the block happens.  
-The client is gauranteed to be authorized at this time.
-
 
     forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
-Called after the apiresponse was processed and all actions have been done.  
+Called after the status of an steamid was retrieved.  
+It is not gauranteed that the owner of the auth is available at this time.  
 This can be used for example to implement an SQL-based logging mechanism.
+
+
+    forward Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
+Called after the status of a banned steamid was retrieved and the owner is about to be kicked.  
+The client is gauranteed to be authorized at this time.
+
 
 Please take a look at the includefile for more informations.
