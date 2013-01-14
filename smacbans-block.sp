@@ -34,15 +34,15 @@
 
 
 // Is this a devbuild?
-#define DEV_BUILD true
+#define DEV_BUILD false
 
 
 
 // If is no devbuild use the main version
 #if DEV_BUILD != true
-	#define PLUGIN_VERSION "0.1.9-dev"
+	#define PLUGIN_VERSION "0.1.9"
 #else
-	#define PLUGIN_VERSION "0.1.9-dev39"
+	#define PLUGIN_VERSION "0.2.0-dev"
 #endif
 
 
