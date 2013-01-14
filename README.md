@@ -10,19 +10,19 @@ We only provide a community driven global banlist and the tools to use it.
 
 
 ## Warning
-This repository is used for developement purposes.  
+This repository is used for development purposes.  
 The code here is often not tested extensively enough to use if for productively run servers.  
-If you're not a developer or do not intend to help us by testing unstable versions you should visit [our website](http://smacbans.com) for a stable release.  
+If you're not a developer or do not intend to help us by testing "unstable" versions you should visit [our website](http://smacbans.com) for a stable release.  
 
-### Downloading an developement build
+### Downloading an development build
 Every time something is committed into the masterbranch of this reposity the plugin will be build [here](http://vs.gugyclan.eu:8000/job/SmacBans-Block/).  
 The files are compiled from the sourcecode you see here, therefore the warning above also applies to these builds.  
 **Use them at your own risk.**
 
 
 ## Supported Games
-SmacBans: Block is compatible with any game that SMAC and the depencies are available for.  
-These include but are not limited to
+SmacBans: Block should compatible with any game Sourcemod supports.  
+These games include but are not limited to the following
 
     Counter-Strike: Source
     Counter-Strike: Global Offensive
@@ -41,18 +41,19 @@ You can see a list of servers running this plugin [here](http://www.game-monitor
 3. Put `smacbans-block.smx` in your `../addons/sourcemod/plugins` directory  
 4. Put `smacbans-block.phrases.txt` in your `../addons/sourcemod/translations` directory  
 5. Add the `smacbans-block.cfg` in your `../cfg/sourcemod` folder or load the plugin, it will automatically create it  
-6. Load the plugin  
+6. Load the plugin or change the map 
 7. Edit the config to your purposes
 
 
 ## Upgrade
-1. Remove the `smacbans-block.cfg` in `../cfg/sourcemod/` if needed
-2. Overwrite the file `smacbans-block.smx` in `../addons/sourcemod/plugins` with the newer one
-3. Overwrite the file `smacbans-block.phrases.txt` in `../addons/sourcemod/translations` with the newer one
+**Since 0.1.9, we use an automatic configappender, you don't have to delete your pluginconfig anymore**  
+
+1. Overwrite the file `smacbans-block.smx` in `../addons/sourcemod/plugins` with the newer one
+2. Overwrite the file `smacbans-block.phrases.txt` in `../addons/sourcemod/translations` with the newer one
 
 
 ## Notes
-* Mesages will be show to Admins with the genericflag or the commandoverride `smacbans_admin`  
+* Messages will be show to Admins with the genericflag or the commandoverride `smacbans_admin`  
 * Clients will be rechecked on a lateloadsituation (pluginreload)  
 * The plugins needs the [Socket](http://forums.alliedmods.net/showthread.php?t=67640), or [Curl](http://forums.alliedmods.net/showthread.php?t=152216) extension to work, we recommend socket   
 * The plugin will automatically create a `smacbans-block.cfg` in `..cfg/sourcemod/`  
@@ -79,13 +80,16 @@ More features can be added on request if needed.
 
 ### Forwards
 
-    forward Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
-Called after the apiresponse was processed but before the block happens.  
-The client is gauranteed to be authorized at this time.
-
 
     forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
-Called after the apiresponse was processed and all actions have been done.  
+Called after the status of an steamid was retrieved.  
+It is not gauranteed that the owner of the auth is available at this time.  
 This can be used for example to implement an SQL-based logging mechanism.
+
+
+    forward Smacbans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
+Called after the status of a banned steamid was retrieved and the owner is about to be kicked.  
+The client is gauranteed to be authorized at this time.
+
 
 Please take a look at the includefile for more informations.

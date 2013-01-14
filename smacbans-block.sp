@@ -34,15 +34,15 @@
 
 
 // Is this a devbuild?
-#define DEV_BUILD true
+#define DEV_BUILD false
 
 
 
 // If is no devbuild use the main version
 #if DEV_BUILD != true
-	#define PLUGIN_VERSION "0.1.9-dev"
+	#define PLUGIN_VERSION "0.1.9"
 #else
-	#define PLUGIN_VERSION "0.1.9-dev39"
+	#define PLUGIN_VERSION "0.2.0-dev"
 #endif
 
 
@@ -75,6 +75,7 @@ new Handle:g_hOnReceiveForward;
 new Handle:g_hOnBlockForward;
 
 
+
 public Plugin:myinfo = 
 {
 	name = "SMACBANS: Block",
@@ -83,9 +84,6 @@ public Plugin:myinfo =
 	version = PLUGIN_VERSION,
 	url = "http://smacbans.com"
 }
-
-
-
 
 
 
@@ -200,7 +198,7 @@ new String:g_sTempCacheFile[PLATFORM_MAX_PATH];
 
 
 
-#define CACHE_MAX_SIZE   15000
+#define CACHE_MAX_SIZE   2500
 #define CACHE_EXPIRY     24
 #define CACHE_UNKNOWN    0
 #define CACHE_NOT_BANNED 1
@@ -307,6 +305,8 @@ public OnPluginStart()
 	
 	AutoExecConfig(true, "smacbans-block");
 	AutoExecConfig_CleanFile();
+	
+	
 	LoadTranslations("smacbans-block.phrases");
 	
 	
@@ -375,6 +375,7 @@ public OnPluginStart()
 	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
 	#endif
+	
 	
 	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
@@ -486,7 +487,7 @@ LoadCache()
 		#endif
 		
 		
-		// Statusbuffer must be exactly 1 char, also it must be between the range of the defined cachevalues 
+		// Statusbuffer must be exactly 1 char, also it must be between the range of the defined cachevalues
 		tempint = StringToInt(sSplitBuffer[1]);
 		if(tempint < CACHE_UNKNOWN || tempint > CACHE_IS_BANNED || strlen(sSplitBuffer[1]) != 1)
 		{
@@ -579,6 +580,9 @@ StoreCache()
 		if(SmacbansIsClientUsableAuth(i))
 		{
 			GetClientAuthString(i, sIDBuffer, sizeof(sIDBuffer));
+			
+			
+			// Admins can choose to not kick players even if they are banned, therefore we should store the banstatus too
 			GetTrieValue(g_hTrie, sIDBuffer,iStatusBuffer);
 			
 			WriteFileLine(hFile, "%s|%d", sIDBuffer, iStatusBuffer);
@@ -654,6 +658,7 @@ public OnAllPluginsLoaded()
 	{
 		Updater_AddPlugin(UPDATERURL);
 		
+		// Forced update for betabuilds
 		#if DEV_BUILD == true
 		if(g_hUpdaterCheckTime == INVALID_HANDLE)
 		{
@@ -673,6 +678,7 @@ public OnLibraryAdded(const String:name[])
 	{
 		Updater_AddPlugin(UPDATERURL);
 		
+		// Forced update for betabuilds
 		#if DEV_BUILD == true
 		if(g_hUpdaterCheckTime == INVALID_HANDLE)
 		{
@@ -1183,7 +1189,10 @@ public OnCurlComplete(Handle:hndl, CURLcode: code, any:data)
 	}
 	#endif
 	
-	CloseHandle(hndl);
+	if(hndl != INVALID_HANDLE)
+	{
+		CloseHandle(hndl);
+	}
 }
 // ------------------------------------------------ CURL -------------------------------------------------------
 

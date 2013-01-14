@@ -181,7 +181,6 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
 
 
 
-
 /**
  * Called after the status of an steamid was retrieved.
  * Note: It is not gauranteed that the owner of the auth is available at this time.
@@ -193,8 +192,6 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
  * @noreturn
  */
 forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
-
-
 
 
 
@@ -214,8 +211,6 @@ forward SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
 
 
 
-
-
 /* Do not edit below this line */
 public SharedPlugin:__pl_sbblock = 
 {
@@ -227,6 +222,7 @@ public SharedPlugin:__pl_sbblock =
 	required = 0,
 #endif
 };
+
 
 
 
