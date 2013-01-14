@@ -487,7 +487,7 @@ LoadCache()
 		#endif
 		
 		
-		// Statusbuffer must be exactly 1 char, also it must be between the range of the defined cachevalues 
+		// Statusbuffer must be exactly 1 char, also it must be between the range of the defined cachevalues
 		tempint = StringToInt(sSplitBuffer[1]);
 		if(tempint < CACHE_UNKNOWN || tempint > CACHE_IS_BANNED || strlen(sSplitBuffer[1]) != 1)
 		{
@@ -580,6 +580,9 @@ StoreCache()
 		if(SmacbansIsClientUsableAuth(i))
 		{
 			GetClientAuthString(i, sIDBuffer, sizeof(sIDBuffer));
+			
+			
+			// Admins can choose to not kick players even if they are banned, therefore we should store the banstatus too
 			GetTrieValue(g_hTrie, sIDBuffer,iStatusBuffer);
 			
 			WriteFileLine(hFile, "%s|%d", sIDBuffer, iStatusBuffer);
