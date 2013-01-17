@@ -38,7 +38,7 @@
 
 
 
-// If is no devbuild use the main version
+// If this is no devbuild use the main version
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
@@ -47,7 +47,7 @@
 
 
 
-// Used for updater
+// Used for updater, we use an seperate one for devbuilds
 #if DEV_BUILD != true
 	#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
 #else
@@ -178,8 +178,8 @@ new bool:g_bKick;
 new String:g_sDynamicUserAgent[128];
 
 
+// Devbuilds force an update periodically
 #if DEV_BUILD == true && UPDATER == true
-// Updater - update
 new Handle:g_hUpdaterCheckTime;
 #endif
 
