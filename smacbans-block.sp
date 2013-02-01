@@ -38,7 +38,7 @@
 
 
 
-// If is no devbuild use the main version
+// If this is no devbuild use the main version
 #if DEV_BUILD != true
 	#define PLUGIN_VERSION "0.1.9-dev"
 #else
@@ -47,7 +47,7 @@
 
 
 
-// Used for updater
+// Used for updater, we use an seperate one for devbuilds
 #if DEV_BUILD != true
 	#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
 #else
@@ -93,7 +93,7 @@ new String:g_sLogFile[PLATFORM_MAX_PATH];
 
 
 // Version
-new Handle:g_HVersion;
+new Handle:g_hVersion;
 
 
 
@@ -178,8 +178,8 @@ new bool:g_bKick;
 new String:g_sDynamicUserAgent[128];
 
 
+// Devbuilds force an update periodically
 #if DEV_BUILD == true && UPDATER == true
-// Updater - update
 new Handle:g_hUpdaterCheckTime;
 #endif
 
@@ -292,7 +292,7 @@ public OnPluginStart()
 	
 	
 	// Convars
-	g_HVersion             = AutoExecConfig_CreateConVar("smacbans_block_version", PLUGIN_VERSION, "Plugin Version", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	g_hVersion             = AutoExecConfig_CreateConVar("smacbans_block_version", PLUGIN_VERSION, "Plugin Version", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	g_hLogEnabled	       = AutoExecConfig_CreateConVar("smacbans_block_log_enabled", "1", "Whether or not blocks should be logged", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	g_hPublicMessages      = AutoExecConfig_CreateConVar("smacbans_block_public_messages", "0", "Whether or not statusmessages should be written in chat to everyone", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	g_hRecheckUndetermined = AutoExecConfig_CreateConVar("smacbans_block_recheck_undetermined", "0", "Whether or not clients should be rechecked if their status couldn't be read out properly (use with care)", FCVAR_PLUGIN, true, 0.0, true, 1.0);
@@ -310,7 +310,7 @@ public OnPluginStart()
 	LoadTranslations("smacbans-block.phrases");
 	
 	
-	SetConVarString(g_HVersion, PLUGIN_VERSION, false, false);
+	SetConVarString(g_hVersion, PLUGIN_VERSION, false, false);
 	g_bLogEnabled          = GetConVarBool(g_hLogEnabled);
 	g_bPublicMessages      = GetConVarBool(g_hPublicMessages);
 	g_bRecheckUndetermined = GetConVarBool(g_hRecheckUndetermined);
@@ -321,7 +321,7 @@ public OnPluginStart()
 	g_bKick				   = GetConVarBool(g_hKick);
 	
 	
-	HookConVarChange(g_HVersion, OnCvarChanged);
+	HookConVarChange(g_hVersion, OnCvarChanged);
 	HookConVarChange(g_hLogEnabled, OnCvarChanged);
 	HookConVarChange(g_hPublicMessages, OnCvarChanged);
 	HookConVarChange(g_hRecheckUndetermined, OnCvarChanged);
@@ -716,9 +716,9 @@ public Action:Timer_ForceUpdate(Handle:timer)
 
 public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue[])
 {
-	if(cvar == g_HVersion)
+	if(cvar == g_hVersion)
 	{
-		SetConVarString(g_HVersion, PLUGIN_VERSION, false, false);
+		SetConVarString(g_hVersion, PLUGIN_VERSION, false, false);
 	}
 	else if(cvar == g_hLogEnabled)
 	{
