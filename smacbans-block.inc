@@ -42,7 +42,7 @@ stock SmacbansPrintAdminNotice(admflag, const String:format[], any:...)
 
 
 /**
- * Prints an deugmessage to the serverconsole and all ingame players.
+ * Prints an debugmessage to the serverconsole and all ingame players.
  *
  * @param enabled		Bool value to enable/disable this function.
  * @param format		Formatting rules.
@@ -53,7 +53,7 @@ stock SmacbansDebug(bool:enabled, const String:format[], any:...)
 {
 	if(enabled)
 	{
-		decl String:Message[4096];
+		decl String:Message[192];
 		VFormat(Message, sizeof(Message), format, 3);
 		
 		PrintToServer(Message);
@@ -70,7 +70,7 @@ stock SmacbansDebug(bool:enabled, const String:format[], any:...)
  * @param client		Client index.
  * @return				True if client is usable, false otherwise.
 */
-stock SmacbansIsClientUsable(client)
+stock bool:SmacbansIsClientUsable(client)
 {
 	if(client > 0 && client <= MaxClients)
 	{
@@ -89,7 +89,7 @@ stock SmacbansIsClientUsable(client)
  * @param client		Client index.
  * @return				True if client is authorized and usable, false otherwise.
 */
-stock SmacbansIsClientUsableAuth(client)
+stock bool:SmacbansIsClientUsableAuth(client)
 {
 	if(client > 0 && client <= MaxClients && IsClientAuthorized(client))
 	{
@@ -108,9 +108,9 @@ stock SmacbansIsClientUsableAuth(client)
  * @param client		CLient index.
  * @return				True if client is valid, false otherwise.
 */
-stock bool:SmacbansIsClientValid(id)
+stock bool:SmacbansIsClientValid(client)
 {
-	if(id > 0 && id <= MaxClients && IsClientInGame(id))
+	if(client > 0 && client <= MaxClients && IsClientInGame(client))
 	{
 		return true;
 	}
@@ -131,6 +131,7 @@ stock bool:SmacbansIsClientValid(id)
 stock SmacbansGetClientFromSteamId(const String:auth[])
 {
 	new String:clientAuth[MAX_STEAMAUTH_LENGTH];
+	
 	for(new i; i <= MaxClients; i++) 
 	{
 		if(SmacbansIsClientUsableAuth(i) && !IsFakeClient(i))
