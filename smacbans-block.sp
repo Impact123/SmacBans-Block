@@ -640,7 +640,7 @@ public Action:Timer_CheckVersion(Handle:timer)
 	if(g_iPluginVersionStatus == PLUGIN_VERSION_BAD)
 	{
 		// Notice admins that a new pluginversion is available and they should update
-		SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_VersionDeprecated", COMMUNITYURL);
+		SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03%t", "Smacbans_VersionDeprecated", COMMUNITYURL);
 	}
 	
 	return Plugin_Continue;
@@ -807,11 +807,11 @@ public OnClientAuthorized(client, const String:auth[])
 					// Pubmessage
 					if(!g_bPublicMessages)
 					{
-						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_PositiveMatch", client);
+						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03%t", "Smacbans_PositiveMatch", client);
 					}
 					else
 					{
-						PrintToChatAll("\x04[SMACBANS]\x03 %t", "Smacbans_PositiveMatch", client);
+						PrintToChatAll("\x04[SMACBANS]\x03%t", "Smacbans_PositiveMatch", client);
 					}
 				}
 			}
@@ -835,11 +835,11 @@ public OnClientAuthorized(client, const String:auth[])
 					// Pubmessage
 					if(!g_bPublicMessages)
 					{
-						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_NoPositiveMatch", client);
+						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03%t", "Smacbans_NoPositiveMatch", client);
 					}
 					else
 					{
-						PrintToChatAll("\x04[SMACBANS]\x03 %t", "Smacbans_NoPositiveMatch", client);
+						PrintToChatAll("\x04[SMACBANS]\x03%t", "Smacbans_NoPositiveMatch", client);
 					}
 				}
 			}
@@ -882,7 +882,7 @@ public Action:Timer_WelcomeMessage(Handle:timer, any:userid)
 	
 	if(SmacbansIsClientValid(client))
 	{
-		PrintToChat(client, "\x04[SMACBANS]\x03 %t", "Smacbans_Welcome", COMMUNITYURL);
+		PrintToChat(client, "\x04[SMACBANS]\x03%t", "Smacbans_Welcome", COMMUNITYURL);
 	}
 	
 	return Plugin_Stop;
@@ -1429,11 +1429,11 @@ ProcessResponse(String:data[])
 						// Pubmessage
 						if(!g_bPublicMessages)
 						{
-							SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_PositiveMatch", client);
+							SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03%t", "Smacbans_PositiveMatch", client);
 						}
 						else
 						{
-							PrintToChatAll("\x04[SMACBANS]\x03 %t", "Smacbans_PositiveMatch", client);
+							PrintToChatAll("\x04[SMACBANS]\x03%t", "Smacbans_PositiveMatch", client);
 						}
 					}
 					
@@ -1474,11 +1474,11 @@ ProcessResponse(String:data[])
 						// Pubmessage
 						if(!g_bPublicMessages)
 						{
-							SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_NoPositiveMatch", client);
+							SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03%t", "Smacbans_NoPositiveMatch", client);
 						}
 						else
 						{
-							PrintToChatAll("\x04[SMACBANS]\x03 %t", "Smacbans_NoPositiveMatch", client);
+							PrintToChatAll("\x04[SMACBANS]\x03%t", "Smacbans_NoPositiveMatch", client);
 						}
 					}
 				}
@@ -1504,7 +1504,7 @@ ProcessResponse(String:data[])
 					if(g_iMessageVerbosity > 1)
 					{
 						// This will not be public, even if the public cvar is set
-						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03 %t", "Smacbans_NoMatch", client);
+						SmacbansPrintAdminNotice(ADMFLAG_GENERIC, "\x04[SMACBANS]\x03%t", "Smacbans_NoMatch", client);
 					}
 				}
 			}
