@@ -33,26 +33,16 @@
 #define UPDATER true
 
 
-// Is this a devbuild?
-#define DEV_BUILD true
 
 
 
-// If this is no devbuild use the main version
-#if DEV_BUILD != true
-	#define PLUGIN_VERSION "0.1.9-dev"
-#else
-	#define PLUGIN_VERSION "0.2.0-dev1"
-#endif
+#define PLUGIN_VERSION "0.2.0-dev"
 
 
 
-// Used for updater, we use an seperate one for devbuilds
-#if DEV_BUILD != true
-	#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
-#else
-	#define UPDATERURL "http://update.smacbans.com/block_beta/smacbans-block_beta.txt"
-#endif
+// Used for updater
+#define UPDATERURL "http://update.smacbans.com/block/smacbans-block.txt"
+
 
 
 
@@ -73,6 +63,7 @@ new Handle:g_hPreferredExtension;
 // IPC
 new Handle:g_hOnReceiveForward;
 new Handle:g_hOnBlockForward;
+new Handle:g_hOnCheckForward;
 
 
 
@@ -178,10 +169,8 @@ new bool:g_bKick;
 new String:g_sDynamicUserAgent[128];
 
 
-// Devbuilds force an update periodically
-#if DEV_BUILD == true && UPDATER == true
+// We force an update periodically
 new Handle:g_hUpdaterCheckTime;
-#endif
 
 
 // Pluginversionstatus
@@ -380,6 +369,7 @@ public OnPluginStart()
 	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
 	g_hOnBlockForward   = CreateGlobalForward("SmacBans_OnSteamIDBlock", ET_Ignore, Param_Cell, Param_String, Param_String);
+	g_hOnCheckForward   = CreateGlobalForward("SmacBans_OnSteamIDCheck", ET_Event, Param_Cell, Param_String, Param_String);
 	
 	
 	// Lateload
@@ -658,14 +648,12 @@ public OnAllPluginsLoaded()
 	{
 		Updater_AddPlugin(UPDATERURL);
 		
-		// Forced update for betabuilds
-		#if DEV_BUILD == true
+		// Forced update
 		if(g_hUpdaterCheckTime == INVALID_HANDLE)
 		{
-			g_hUpdaterCheckTime = CreateTimer(3600.0, Timer_ForceUpdate, _, TIMER_REPEAT);
+			g_hUpdaterCheckTime = CreateTimer(43200.0, Timer_ForceUpdate, _, TIMER_REPEAT);
 			Timer_ForceUpdate(INVALID_HANDLE);
 		}
-		#endif
 	}
 }
 
@@ -678,14 +666,12 @@ public OnLibraryAdded(const String:name[])
 	{
 		Updater_AddPlugin(UPDATERURL);
 		
-		// Forced update for betabuilds
-		#if DEV_BUILD == true
+		// Forced update
 		if(g_hUpdaterCheckTime == INVALID_HANDLE)
 		{
-			g_hUpdaterCheckTime = CreateTimer(3600.0, Timer_ForceUpdate, _, TIMER_REPEAT);
+			g_hUpdaterCheckTime = CreateTimer(43200.0, Timer_ForceUpdate, _, TIMER_REPEAT);
 			Timer_ForceUpdate(INVALID_HANDLE);
 		}
-		#endif
 	}
 }
 
@@ -699,7 +685,7 @@ public Updater_OnPluginUpdated()
 
 
 
-#if DEV_BUILD == true && UPDATER == true
+#if UPDATER == true
 public Action:Timer_ForceUpdate(Handle:timer)
 {
 	if(LibraryExists("updater"))
@@ -780,6 +766,16 @@ public OnClientAuthorized(client, const String:auth[])
 	// Verify client and the auth
 	if(!IsFakeClient(client) && MatchRegex(g_hRegex, auth) == 1)
 	{
+		// Call the forward
+		if(!Forward_SmacBans_OnSteamIDCheck(client, auth))
+		{
+			// Add the checked flag so the client will not be checked again
+			g_bWasChecked[client] = true;
+			
+			return;
+		}
+		
+		
 		new status;
 		
 		// Get the cachestatus
@@ -915,6 +911,16 @@ LateCheckAllClients()
 	{
 		if(!g_bWasChecked[i] && !g_bIsBeingChecked[i] && SmacbansIsClientUsableAuth(i) && !IsFakeClient(i))
 		{
+			// Call the forward
+			if(!Forward_SmacBans_OnSteamIDCheck(i, auth))
+			{
+				// Add the checked flag so the client will not be checked again
+				g_bWasChecked[i] = true;
+				
+				continue;
+			}
+			
+		
 			GetClientAuthString(i, auth, sizeof(auth));
 			
 			// Verify the steamid
@@ -1237,6 +1243,25 @@ Forward_SmacBans_OnSteamIDStatusRetrieved(String:auth[], String:banstatus[], Str
 	Call_Finish();
 }
 
+
+
+
+bool:Forward_SmacBans_OnSteamIDCheck(client, const String:auth[])
+{
+	new Action:result;
+	
+	Call_StartForward(g_hOnCheckForward);
+	Call_PushCell(client);
+	Call_PushString(auth);
+	Call_Finish(result);
+	
+	if(result == Plugin_Continue)
+	{
+		return true;
+	}
+	
+	return false;
+}
 
 
 
