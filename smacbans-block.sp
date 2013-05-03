@@ -367,7 +367,7 @@ public OnPluginStart()
 	// Forwards
 	g_hOnReceiveForward = CreateGlobalForward("SmacBans_OnSteamIDStatusRetrieved", ET_Ignore, Param_String, Param_Cell, Param_String);
 	g_hOnBlockForward   = CreateGlobalForward("SmacBans_OnSteamIDBlock", ET_Ignore, Param_Cell, Param_String, Param_String);
-	g_hOnCheckForward   = CreateGlobalForward("SmacBans_OnSteamIDCheck", ET_Event, Param_Cell, Param_String, Param_String);
+	g_hOnCheckForward   = CreateGlobalForward("SmacBans_OnSteamIDCheck", ET_Event, Param_Cell, Param_String);
 	
 	
 	// Lateload
@@ -909,21 +909,21 @@ LateCheckAllClients()
 	{
 		if(!g_bWasChecked[i] && !g_bIsBeingChecked[i] && SmacbansIsClientUsableAuth(i) && !IsFakeClient(i))
 		{
-			// Call the forward
-			if(!Forward_SmacBans_OnSteamIDCheck(i, auth))
-			{
-				// Add the checked flag so the client will not be checked again
-				g_bWasChecked[i] = true;
-				
-				continue;
-			}
-			
-		
 			GetClientAuthString(i, auth, sizeof(auth));
 			
 			// Verify the steamid
 			if(MatchRegex(g_hRegex, auth) == 1)
 			{
+				// Call the forward
+				if(!Forward_SmacBans_OnSteamIDCheck(i, auth))
+				{
+					// Add the checked flag so the client will not be checked again
+					g_bWasChecked[i] = true;
+					
+					continue;
+				}
+			
+			
 				// The client is being checked at the moment
 				g_bIsBeingChecked[i] = true;
 				
