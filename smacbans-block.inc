@@ -15,9 +15,9 @@
 /**
  * Prints a chatmessage to a all admins with a given adminflag or override.
  *
- * @param admflag		Adminflag.
- * @param format		Formatting rules.
- * @param ...			Variable number of format parameters.
+ * @param admflag       Adminflag.
+ * @param format        Formatting rules.
+ * @param ...           Variable number of format parameters.
  * @noreturn
 */
 stock SmacbansPrintAdminNotice(admflag, const String:format[], any:...)
@@ -44,9 +44,9 @@ stock SmacbansPrintAdminNotice(admflag, const String:format[], any:...)
 /**
  * Prints an debugmessage to the serverconsole and all ingame players.
  *
- * @param enabled		Bool value to enable/disable this function.
- * @param format		Formatting rules.
- * @param ...			Variable number of format parameters.
+ * @param enabled       Bool value to enable/disable this function.
+ * @param format        Formatting rules.
+ * @param ...           Variable number of format parameters.
  * @noreturn
 */
 stock SmacbansDebug(bool:enabled, const String:format[], any:...)
@@ -67,8 +67,8 @@ stock SmacbansDebug(bool:enabled, const String:format[], any:...)
 /**
  * Returns if a given clientindex is within the range of being a client.
  *
- * @param client		Client index.
- * @return				True if client is usable, false otherwise.
+ * @param client        Client index.
+ * @return              True if client is usable, false otherwise.
 */
 stock bool:SmacbansIsClientUsable(client)
 {
@@ -86,8 +86,8 @@ stock bool:SmacbansIsClientUsable(client)
 /**
  * Returns if a given client is authorized and usable.
  *
- * @param client		Client index.
- * @return				True if client is authorized and usable, false otherwise.
+ * @param client        Client index.
+ * @return              True if client is authorized and usable, false otherwise.
 */
 stock bool:SmacbansIsClientUsableAuth(client)
 {
@@ -105,8 +105,8 @@ stock bool:SmacbansIsClientUsableAuth(client)
 /**
  * Returns if a given client is valid (ingame).
  *
- * @param client		CLient index.
- * @return				True if client is valid, false otherwise.
+ * @param client        Client index.
+ * @return              True if client is valid, false otherwise.
 */
 stock bool:SmacbansIsClientValid(client)
 {
@@ -124,8 +124,8 @@ stock bool:SmacbansIsClientValid(client)
 /**
  * Finds a client matching the given AuthID.
  *
- * @param auth			AuthID.
- * @return				Clientindex or -1 on failure.
+ * @param auth          AuthID.
+ * @return              Clientindex or -1 on failure.
 */
 // Used to find a matching client to an auth
 stock SmacbansGetClientFromSteamId(const String:auth[])
@@ -154,9 +154,9 @@ stock SmacbansGetClientFromSteamId(const String:auth[])
 /**
  * Formats an long to an dotted IP-string
  *
- * @param long			Long ip.
- * @param str			String to store the ip into.
- * @param maxlen		Length of buffer.
+ * @param long          Long ip.
+ * @param str           String to store the ip into.
+ * @param maxlen        Length of buffer.
  * @noreturn
  */
 stock SmacbansLongToIp(long, String:str[], maxlen)
@@ -187,12 +187,12 @@ stock SmacbansLongToIp(long, String:str[], maxlen)
  * Note: It is not gauranteed that the owner of the auth is available at this time.
  *    [- Use the included stock to find and validate the owner of the auth.
  *
- * @param auth			Authid response.
- * @param banstatus		Banstatus of the auth.
- * @param banreason		Banreason if banned.
+ * @param auth          Authid response.
+ * @param banstatus     Banstatus of the auth.
+ * @param banreason     Banreason if banned.
  * @noreturn
  */
-forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banreason[]);
+forward SmacBans_OnSteamIDStatusRetrieved(const String:auth[], banstatus, const String:banreason[]);
 
 
 
@@ -202,12 +202,25 @@ forward SmacBans_OnSteamIDStatusRetrieved(String:auth[], banstatus, String:banre
  * Note: Only gets called if kick is enabled.
  *    [- The client is gauranteed to be authorized at this time.
  *
- * @param client		Client index
- * @param auth			Authid response.
- * @param banreason		Banreason if available.
+ * @param client        Client index
+ * @param auth          Authid response.
+ * @param banreason     Banreason if available.
  * @noreturn
  */
-forward SmacBans_OnSteamIDBlock(client, String:auth[], String:banreason[]);
+forward SmacBans_OnSteamIDBlock(client, const String:auth[], const String:banreason[]);
+
+
+
+
+/**
+ * Called before a clients steamid is about to be checked.
+ * Note: [- The client is gauranteed to be authorized at this time.
+ *
+ * @param client        Client index
+ * @param auth          Authid.
+ * @return              Plugin_Handled to block the further check, Plugin_Continue otherwise.
+ */
+forward Action:SmacBans_OnSteamIDCheck(client, const String:auth[]);
 
 
 
