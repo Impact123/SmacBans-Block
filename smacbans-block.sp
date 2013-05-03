@@ -167,8 +167,10 @@ new bool:g_bKick;
 new String:g_sDynamicUserAgent[128];
 
 
-// We force an update periodically
-new Handle:g_hUpdaterCheckTime;
+#if UPDATER == true
+	// We force an update periodically
+	new Handle:g_hUpdaterCheckTime;
+#endif
 
 
 // Pluginversionstatus
