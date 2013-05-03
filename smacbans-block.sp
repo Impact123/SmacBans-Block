@@ -30,9 +30,7 @@
 
 
 // Should updater support be enabled?
-#define UPDATER true
-
-
+#define UPDATER false
 
 
 
