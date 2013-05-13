@@ -53,7 +53,7 @@ stock SmacbansDebug(bool:enabled, const String:format[], any:...)
 {
 	if(enabled)
 	{
-		decl String:Message[192];
+		decl String:Message[4096];
 		VFormat(Message, sizeof(Message), format, 3);
 		
 		PrintToServer(Message);
