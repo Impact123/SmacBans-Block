@@ -214,7 +214,7 @@ forward SmacBans_OnSteamIDBlock(client, const String:auth[], const String:banrea
 
 /**
  * Called before a clients steamid is about to be checked.
- * Note: [- The client is gauranteed to be authorized at this time.
+ * Note: The client is gauranteed to be authorized at this time.
  *
  * @param client        Client index
  * @param auth          Authid.
