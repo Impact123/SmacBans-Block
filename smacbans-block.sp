@@ -30,11 +30,11 @@
 
 
 // Should updater support be enabled?
-#define UPDATER false
+#define UPDATER true
 
 
 
-#define PLUGIN_VERSION "0.2.0-dev"
+#define PLUGIN_VERSION "0.1.9"
 
 
 
