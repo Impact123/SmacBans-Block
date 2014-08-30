@@ -131,6 +131,9 @@ stock bool:SmacbansIsClientValid(client)
 stock SmacbansGetClientFromSteamId(const String:auth[])
 {
 	new String:clientAuth[MAX_STEAMAUTH_LENGTH];
+	new String:authCopy[MAX_STEAMAUTH_LENGTH];
+	
+	strcopy(authCopy, sizeof(authCopy), auth);
 	
 	for(new i; i <= MaxClients; i++) 
 	{
@@ -138,7 +141,18 @@ stock SmacbansGetClientFromSteamId(const String:auth[])
 		{
 			GetClientAuthString(i, clientAuth, sizeof(clientAuth));
 			
-			if(StrEqual(auth, clientAuth)) 
+			// Convert new ID's to old format for comparison
+			if (StrContains(clientAuth, "[U:") == 0)
+			{
+				SteamID2ToSteamId(clientAuth, clientAuth, sizeof(clientAuth));
+			}
+
+			if (StrContains(authCopy, "[U:") == 0)
+			{
+				SteamID2ToSteamId(authCopy, authCopy, sizeof(authCopy));
+			}
+			
+			if(StrEqual(authCopy, clientAuth)) 
 			{
 				return i;
 			}
@@ -146,6 +160,18 @@ stock SmacbansGetClientFromSteamId(const String:auth[])
 	}
 	
 	return -1;
+}
+
+
+
+
+stock SteamID2ToSteamId(const String:steamID2[], String:dest[], max_len)
+{
+	decl String:sTemp[MAX_STEAMAUTH_LENGTH];
+	strcopy(sTemp, sizeof(sTemp), steamID2);
+	sTemp[strlen(sTemp)] = '\0';
+	new temp = StringToInt(sTemp[5]);
+	Format(dest, max_len, "STEAM_0:%d%d", temp & 1, temp >> 1);
 }
 
 

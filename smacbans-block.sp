@@ -144,6 +144,7 @@ new bool:g_bIsBeingChecked[MAXPLAYERS+1];
 
 // Regex
 new Handle:g_hRegex;
+new Handle:g_hRegex2;
 
 
 
@@ -262,6 +263,7 @@ public OnPluginStart()
 	
 	// Regex
 	g_hRegex = CompileRegex("^STEAM_[0-1]{1}:[0-1]{1}:[0-9]+$");
+	g_hRegex2 = CompileRegex("^\\[U:1:[0-9]{3,11}+\\]$");
 	
 	
 	
@@ -461,8 +463,8 @@ LoadCache()
 		}
 
 		
-		// Line doesn't start with STEAM_
-		if(StrContains(sReadBuffer, "STEAM_")  != 0)
+		// Line doesn't start with a valid SteamID string
+		if(StrContains(sReadBuffer, "STEAM_")  != 0 || StrContains(sReadBuffer, "[U:") != 0)
 		{
 			continue;
 		}
@@ -764,7 +766,7 @@ public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue
 public OnClientAuthorized(client, const String:auth[])
 {
 	// Verify client and the auth
-	if(!IsFakeClient(client) && MatchRegex(g_hRegex, auth) == 1)
+	if(!IsFakeClient(client) && ( MatchRegex(g_hRegex, auth) == 1  || MatchRegex(g_hRegex2, auth)) )
 	{
 		// Call the forward
 		if(!Forward_SmacBans_OnSteamIDCheck(client, auth))
@@ -913,8 +915,9 @@ LateCheckAllClients()
 		{
 			GetClientAuthString(i, auth, sizeof(auth));
 			
+			
 			// Verify the steamid
-			if(MatchRegex(g_hRegex, auth) == 1)
+			if(MatchRegex(g_hRegex, auth) == 1 || MatchRegex(g_hRegex2, auth) == 1)
 			{
 				// Call the forward
 				if(!Forward_SmacBans_OnSteamIDCheck(i, auth))
@@ -924,8 +927,8 @@ LateCheckAllClients()
 					
 					continue;
 				}
-			
-			
+				
+				
 				// The client is being checked at the moment
 				g_bIsBeingChecked[i] = true;
 				
@@ -1391,7 +1394,7 @@ ProcessResponse(String:data[])
 	splitsize = sizeof(Split);
 	for(new i; i < splitsize; i++)
 	{
-		if((strlen(Split[i]) > 0 && MatchRegex(g_hRegex, Split[i]) == 1))
+		if(strlen(Split[i]) > 0 && MatchRegex(g_hRegex, Split[i]) == 1)
 		{
 			SmacbansDebug(DEBUG, "----------- INDEX %d -----------", i);
 			SmacbansDebug(DEBUG, "Auth: %s", Split[i]);
