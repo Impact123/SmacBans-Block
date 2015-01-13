@@ -159,6 +159,11 @@ new Handle:g_hHostIp;
 new g_iHostIp;
 
 
+// Lan
+new Handle:g_hLan;
+new bool:g_bLan;
+
+
 // Kick
 new Handle:g_hKick;
 new bool:g_bKick;
@@ -358,10 +363,18 @@ public OnPluginStart()
 	}
 	
 	
+	// Lan
+	if( (g_hLan = FindConVar("sv_lan")) != INVALID_HANDLE)
+	{
+		g_bLan = GetConVarBool(g_hLan);
+		HookConVarChange(g_hLan, OnCvarChanged);
+	}
+	
+	
 	// Format the dynamic UserAgent
 	decl String:sHostIp[16];
 	SmacbansLongToIp(g_iHostIp, sHostIp, sizeof(sHostIp));
-	Format(g_sDynamicUserAgent, sizeof(g_sDynamicUserAgent), "[%s] (%s) <%s:%d>", USERAGENT, PLUGIN_VERSION, sHostIp, g_iPort);
+	Format(g_sDynamicUserAgent, sizeof(g_sDynamicUserAgent), "[%s] (%s) <%s:%d> <cvars::sv_lan:%d>", USERAGENT, PLUGIN_VERSION, sHostIp, g_iPort, g_bLan);
 	
 	#if DEBUG == true
 	SmacbansDebug(DEBUG, "Dynamic Agent: %s", g_sDynamicUserAgent);
@@ -747,6 +760,10 @@ public OnCvarChanged(Handle:cvar, const String:oldValue[], const String:newValue
 		#if DEBUG == true
 		SmacbansDebug(DEBUG, "Dynamic Agent changed to: %s", g_sDynamicUserAgent);
 		#endif
+	}
+	else if (cvar == g_hLan)
+	{
+		g_bLan = GetConVarBool(g_hLan);
 	}
 	else if(cvar == g_hPreferredExtension)
 	{
