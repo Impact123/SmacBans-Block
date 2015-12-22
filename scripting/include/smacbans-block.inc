@@ -136,7 +136,7 @@ stock SmacbansGetClientFromSteamId(const String:auth[])
 	{
 		if(SmacbansIsClientUsableAuth(i) && !IsFakeClient(i))
 		{
-			GetClientAuthString(i, clientAuth, sizeof(clientAuth));
+			GetClientAuthId(i, AuthId_Steam3, clientAuth, sizeof(clientAuth));
 			
 			if(StrEqual(auth, clientAuth)) 
 			{

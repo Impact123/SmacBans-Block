@@ -1,6 +1,5 @@
 #include <sourcemod>
 #include <regex>
-#include <autoexecconfig>
 #include "smacbans-block"
 
 #undef REQUIRE_PLUGIN
@@ -276,28 +275,20 @@ public OnPluginStart()
 	// Loads the temporary cachefile which was saved on shutdow
 	LoadCache();
 	
-	
-	AutoExecConfig_SetFile("smacbans-block");
-	
-	
 	// Convars
-	g_hVersion             = AutoExecConfig_CreateConVar("smacbans_block_version", PLUGIN_VERSION, "Plugin Version", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	g_hLogEnabled	       = AutoExecConfig_CreateConVar("smacbans_block_log_enabled", "1", "Whether or not blocks should be logged", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	g_hPublicMessages      = AutoExecConfig_CreateConVar("smacbans_block_public_messages", "0", "Whether or not statusmessages should be written in chat to everyone", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	g_hRecheckUndetermined = AutoExecConfig_CreateConVar("smacbans_block_recheck_undetermined", "0", "Whether or not clients should be rechecked if their status couldn't be read out properly (use with care)", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	g_hWelcomeMessage      = AutoExecConfig_CreateConVar("smacbans_block_welcome_message", "1", "Whether or not players should receive an welcomemessage saying that your server is protected by SmacBans", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	g_hMessageVerbosity    = AutoExecConfig_CreateConVar("smacbans_block_message_verbosity", "2", "How verbose the statusmessages should be: 0 - No messages, 1 - Only block messages, 2 - All messages", FCVAR_PLUGIN, true, 0.0, true, 2.0);
-	g_hCacheMessages       = AutoExecConfig_CreateConVar("smacbans_block_cache_messages", "0", "Whether or not statusmessages should be written on check even if the client was cached already", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	g_hPreferredExtension  = AutoExecConfig_CreateConVar("smacbans_block_preferred_extension", "1", "Preferred extension: 0 - EXT_CURL, 1 - EXT_SOCKET", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	g_hKick				   = AutoExecConfig_CreateConVar("smacbans_block_kick", "1", "Kicks players listed on the SmacBans global banlist", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	
+	g_hVersion             = CreateConVar("smacbans_block_version", PLUGIN_VERSION, "Plugin Version", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	g_hLogEnabled	       = CreateConVar("smacbans_block_log_enabled", "1", "Whether or not blocks should be logged", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hPublicMessages      = CreateConVar("smacbans_block_public_messages", "0", "Whether or not statusmessages should be written in chat to everyone", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hRecheckUndetermined = CreateConVar("smacbans_block_recheck_undetermined", "0", "Whether or not clients should be rechecked if their status couldn't be read out properly (use with care)", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hWelcomeMessage      = CreateConVar("smacbans_block_welcome_message", "1", "Whether or not players should receive an welcomemessage saying that your server is protected by SmacBans", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hMessageVerbosity    = CreateConVar("smacbans_block_message_verbosity", "2", "How verbose the statusmessages should be: 0 - No messages, 1 - Only block messages, 2 - All messages", FCVAR_PLUGIN, true, 0.0, true, 2.0);
+	g_hCacheMessages       = CreateConVar("smacbans_block_cache_messages", "0", "Whether or not statusmessages should be written on check even if the client was cached already", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hPreferredExtension  = CreateConVar("smacbans_block_preferred_extension", "1", "Preferred extension: 0 - EXT_CURL, 1 - EXT_SOCKET", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	g_hKick				   = CreateConVar("smacbans_block_kick", "1", "Kicks players listed on the SmacBans global banlist", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	
 	AutoExecConfig(true, "smacbans-block");
-	AutoExecConfig_CleanFile();
-	
 	
 	LoadTranslations("smacbans-block.phrases");
-	
 	
 	SetConVarString(g_hVersion, PLUGIN_VERSION, false, false);
 	g_bLogEnabled          = GetConVarBool(g_hLogEnabled);
@@ -569,7 +560,7 @@ StoreCache()
 	{
 		if(SmacbansIsClientUsableAuth(i))
 		{
-			GetClientAuthString(i, sIDBuffer, sizeof(sIDBuffer));
+			GetClientAuthId(i, AuthId_Steam3, sIDBuffer, sizeof(sIDBuffer));
 			
 			
 			// Admins can choose to not kick players even if they are banned, therefore we should store the banstatus too
@@ -911,7 +902,7 @@ LateCheckAllClients()
 	{
 		if(!g_bWasChecked[i] && !g_bIsBeingChecked[i] && SmacbansIsClientUsableAuth(i) && !IsFakeClient(i))
 		{
-			GetClientAuthString(i, auth, sizeof(auth));
+			GetClientAuthId(i, AuthId_Steam3, auth, sizeof(auth));
 			
 			// Verify the steamid
 			if(MatchRegex(g_hRegex, auth) == 1)
@@ -1030,8 +1021,8 @@ CheckLateClients()
 		
 		// Set the callbacks and the useragent
 		curl_easy_setopt_function(curl, CURLOPT_WRITEFUNCTION, OnCurlReceive);
-		curl_easy_setopt_string(curl, CURLOPT_URL, sRequestString);
-		curl_easy_setopt_string(curl, CURLOPT_USERAGENT, g_sDynamicUserAgent);
+		curl_easy_setopt_string(curl, CURLOPT_URL, any:sRequestString);
+		curl_easy_setopt_string(curl, CURLOPT_USERAGENT, any:g_sDynamicUserAgent);
 		
 		
 		// Perform
