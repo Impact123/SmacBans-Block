@@ -31,7 +31,7 @@
 		"es"		"Ningun resultado positivo encontrado para {1}"
 		"fr"		"Aucun résultat positive trouvé pour {1}"
 		"ru"		"Позитивный результат для {1} не найден"
-		"pl"		"Nie znaleziono pozytywny wynik dla {1}"
+		"pl"		"Nie znaleziono pozytywnego wyniku dla {1}"
 		"it"		"Nessun risultato positivo trovato per {1}"
 	}
 	"Smacbans_NoMatch"
@@ -48,7 +48,7 @@
 		"es"		"Es estado de {1} no pudo ser definido"
 		"fr"		"L'état de {1} ne pouvait pas être déterminé"
 		"ru"		"Бан-статус от {1} не определяется"
-		"pl"		"Stan {1} nie mógl zostać ustalony"
+		"pl"		"Stan {1} nie mógł zostać ustalony"
 		"it"		"Non possibile determinare stato di {1}"
 	}
 	"Smacbans_GlobalBanned"
@@ -65,7 +65,7 @@
 		"es"		"Estas en la lista smacban global.\nRevisa {1} para mas informacion"
 		"fr"		"Tu es enregistré dans la Smacbans global Banlist.\nConsulte {1} pour en savoir plus"
 		"ru"		"Ты находишся в глобальной банлисте Смакбанса.\nПроверь {1} для дополнительных информации"
-		"pl"		"Znajdujesz się w Smacbans global Banlist.\nSprawdź {1} dla więcej informacji"
+		"pl"		"Znajdujesz się na liście zbanowanych.\nAby uzyskać więcej informacji wejdź na {1}"
 		"it"		"Sei elencato nella Smacbans global Banlist.\nControlla {1} per ulteriori informazioni"
 	}
 	"Smacbans_Welcome"
@@ -90,5 +90,6 @@
 		"#format"	"{1:s}"
 		"en"		"A new pluginversion is available, please visit {1} to update"
 		"de"		"Eine neue Pluginversion ist verfügbar, bitte besuche {1} um zu updaten"
+		"pl"		"Istnieje nowa aktualzacja, aby zaktualizować przejdź do {1}"
 	}
 }
